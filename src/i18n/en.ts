@@ -1,0 +1,202 @@
+import type { Strings } from './es';
+
+const times = (n: number) => (n === 1 ? 'time' : 'times');
+
+const en: Strings = {
+  common: {
+    next: 'Next',
+    close: 'Close',
+    retry: 'Try again',
+    backToToday: 'Back to Today',
+    offline: "We couldn't reach the server. Check your connection and try again.",
+    somethingFailed: "Something didn't go as expected. Your answers are still here; try again.",
+    scale: ['Hardly at all', 'A little', 'Some', 'Quite a lot', 'A huge amount'],
+  },
+  tabs: {
+    today: 'Today',
+    playbook: 'What works',
+    settings: 'Settings',
+  },
+  onboarding: {
+    welcomeTitle: 'SpaceEase',
+    welcomeBody:
+      'Find out what about your space is making work harder, try one adjustment, and keep what works for you.',
+    start: 'Get started',
+    howTitle: 'How it works',
+    howSteps: [
+      "You tell us what task you're doing and how you feel.",
+      'We look at sound, light and what you see, together.',
+      'We suggest one adjustment, and afterwards you tell us if it helped.',
+    ],
+    privacyTitle: 'Your information',
+    privacyBody:
+      "We don't ask for a diagnosis, name or email. Your employer sees nothing. You can delete everything anytime in Settings.",
+    consent: 'I agree that SpaceEase stores my entries as described in the privacy notice.',
+    readNotice: 'Read the privacy notice',
+    continue: 'Continue',
+    placeTitle: 'Where are you working today?',
+    placeHint: 'Give it a name you recognise. You can add more places later.',
+    placeLabel: 'Place name',
+    placePlaceholder: 'For example: My desk',
+    kindLabel: 'Type of place',
+    kinds: { office: 'Office', home: 'Home', other: 'Somewhere else' },
+    finish: 'Save and start',
+  },
+  today: {
+    promptTitle: 'Is something making work harder?',
+    promptBody: "We'll look at your surroundings together and suggest one adjustment to try.",
+    start: 'Check my surroundings',
+    tryingTitle: 'Trying now',
+    tellMe: 'Tell us how it went',
+    lastHelped: 'What helped last',
+  },
+  checkin: {
+    title: 'Check my surroundings',
+    step: (n: number, total: number) => `Step ${n} of ${total}`,
+    taskTitle: 'What are you doing?',
+    moreTasks: 'More tasks',
+    feelingTitle: 'How are you feeling with this task?',
+    placeTitle: 'Where are you?',
+    newPlacePlaceholder: 'Name of another place',
+    addPlace: 'Add',
+    discomfortTitle: 'How much are your surroundings bothering you right now?',
+    effortTitle: 'How much effort is the task taking?',
+    scaleHint: "There are no right or wrong answers. It's for comparing later.",
+    domainHint: 'Choose everything you notice. If you are unsure, choose “I don’t know”.',
+    noneOfThese: 'None of these',
+    notSure: "I don't know",
+    focusTitle: 'What affects you most right now?',
+    focusHint: "We'll start with one thing. The others stay noted.",
+    seeSuggestion: 'See suggestion',
+  },
+  proposal: {
+    selfKind: 'You can do this yourself',
+    askKind: 'To ask your employer',
+    baselineKind: 'Comparison',
+    whyLabel: 'Why it may help',
+    firstTry: (stimulus: string) =>
+      `A first idea for: ${stimulus.toLowerCase()}. We don't know yet whether it works for you.`,
+    exploring: "Let's try something new to learn what else helps you.",
+    comparison: 'Now and then we compare with a moment without changes.',
+    triedHere: (helped: number, trials: number) =>
+      `Here, for this task, it helped ${helped} of ${trials} ${times(trials)}.`,
+    triedElsewhere: (helped: number, trials: number) =>
+      `In other tasks or places it helped ${helped} of ${trials} ${times(trials)}.`,
+    accept: "I'll try it",
+    otherIdea: 'Give me another idea',
+    cannotHere: "I can't do that here",
+    baselineAccept: 'Okay',
+    baselineDecline: "I'd rather try an adjustment",
+    prepareRequest: 'Prepare the request',
+    noneTitle: 'Nothing clear for now',
+    noneBody:
+      "Sometimes it isn't easy to tell what's bothering you, and that's okay. We saved your entry. You can check again later.",
+    exhaustedTitle: "We've tried the ideas we have for this",
+    exhaustedBody: 'There are no new suggestions for this place. What already worked stays in What works.',
+  },
+  reminder: {
+    title: 'When should we ask how it went?',
+    hint: 'We send a single, silent reminder. You can answer earlier or later.',
+    in25: 'In 25 minutes',
+    in50: 'In 50 minutes',
+    myself: "I'll come back when I'm done",
+    notificationTitle: 'How did it go?',
+    notificationBody: (adjustment: string) => `Tell us how “${adjustment}” went.`,
+    doneTitle: 'All set',
+    doneBody: "Work at your own pace. When you're done, tell us how it went from Today.",
+  },
+  checkout: {
+    title: 'How it went',
+    discomfortTitle: 'How much did your surroundings bother you during this time?',
+    effortTitle: 'How much effort did the task take?',
+    helpedTitle: 'Do you think the adjustment helped?',
+    yes: 'Yes',
+    no: 'No',
+    unsure: "I don't know",
+    helpedResult: 'It looks like it helped',
+    notHelpedResult: "It didn't help this time",
+    unclearResult: "It isn't clear yet",
+    comparisonResult: 'Thanks for comparing',
+    change: (before: number, after: number) => `How much your surroundings bothered you went from ${before} to ${after} (out of 5).`,
+    helpedBody: 'It improved more than it usually does for you.',
+    savedTo: (task: string, place?: string) =>
+      `We saved it in What works for ${task.toLowerCase()}${place ? ` at ${place}` : ''}.`,
+    evidence: (helped: number, trials: number) =>
+      trials >= 3
+        ? `You've tried it ${trials} times here; it helped ${helped}.${trials < 5 ? " It isn't certain yet." : ''}`
+        : null,
+    notHelpedBody: "That's useful information too. Next time we'll suggest something else.",
+    unclearBody: "If you try it again, we'll know better.",
+    unclearBetterBody: "It improved, but not more than usual for you. If you try it again, we'll know better.",
+    comparisonBody: 'Knowing how your day changes without adjustments helps us judge the ones you try later.',
+  },
+  playbook: {
+    emptyTitle: 'What works for you will show up here',
+    emptyBody: 'Each time an adjustment helps, we save it with the task and the place where it worked.',
+    evidence: (helped: number, trials: number) => {
+      if (trials >= 5 && helped / trials >= 2 / 3) return `Usually helps: ${helped} of ${trials} times`;
+      if (trials >= 3) return `Helped ${helped} of ${trials} times. Not certain yet.`;
+      return `Helped ${helped} of ${trials} ${times(trials)}`;
+    },
+    forStimulus: (stimulus: string) => `For: ${stimulus.toLowerCase()}`,
+    makeItPermanent: 'Ask for it permanently',
+    anyPlace: 'No place',
+  },
+  request: {
+    title: 'Adjustment request',
+    hint: "Review it and change anything you like. It doesn't mention any diagnosis. You decide whether to send it and to whom.",
+    includeData: "Include what I've recorded",
+    share: 'Share or copy',
+    effects: {
+      focus: 'focus',
+      drained: 'keep my energy up during the day',
+      discomfort: 'work comfortably',
+      overload: 'avoid getting overloaded',
+      other: 'work the way I need to',
+    },
+    letter: (p) =>
+      [
+        'Hi,',
+        `To do my ${p.task.toLowerCase()} work better, I'd like to suggest an adjustment${p.place ? ` at ${p.place}` : ''}.`,
+        `What affects me most is: ${p.stimulus.toLowerCase()}. It makes it harder for me to ${p.effect}.`,
+        `I suggest: ${p.adjustment.toLowerCase()}.${p.alternatives.length ? ` This could also work: ${p.alternatives.map((a) => a.toLowerCase()).join(' or ')}.` : ''}`,
+        p.data,
+        `Could we try it for two weeks and review it together on ${p.reviewDate}?`,
+        'Thank you.',
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
+    dataLine: (adjustment: string, helped: number, trials: number) =>
+      `I've been recording how I work: when I ${adjustment.toLowerCase()}, it helped ${helped} of ${trials} ${times(trials)}.`,
+  },
+  settings: {
+    preferences: 'Preferences',
+    language: 'Language',
+    languageSystem: 'Same as phone',
+    motion: 'Motion',
+    motionSystem: 'Same as phone',
+    motionReduced: 'Always reduced',
+    haptics: 'Vibrate on confirm',
+    softContrast: 'Soft contrast',
+    places: 'My places',
+    removePlace: 'Remove',
+    addPlace: 'Add',
+    newPlacePlaceholder: 'Place name',
+    privacy: 'Privacy',
+    privacyBody:
+      "We store your entries (task, how you felt, what you noticed, the adjustment and whether it helped) with an anonymous key from this phone. We don't store diagnoses or contact details, and your employer has no access.",
+    readPrivacy: 'Read the privacy notice',
+    deleteAll: 'Delete all my data',
+    deleteConfirmTitle: 'Delete all your data?',
+    deleteConfirmBody:
+      'Your places, entries and What works are deleted from the server and this phone. This cannot be undone.',
+    deleteConfirm: 'Delete everything',
+    cancel: 'Cancel',
+    about: 'About',
+    version: (app: string, apiVersion?: string) => `Version ${app}${apiVersion ? ` · API ${apiVersion}` : ''}`,
+    serverOk: 'Server connected',
+    serverDown: 'No connection to the server',
+  },
+};
+
+export default en;

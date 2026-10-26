@@ -1,19 +1,108 @@
+import type { Locale } from '@/i18n';
+import { getDeviceKey } from '@/lib/session';
+import type {
+  Catalog,
+  Checkin,
+  CheckinStatus,
+  CheckinWithProposal,
+  Health,
+  NewCheckin,
+  OutcomeResult,
+  PlaybookEntry,
+  Response,
+  Space,
+  SpaceKind,
+} from '@/lib/types';
+
 /** URL base de la API. En builds y updates de EAS se puede sobrescribir con EXPO_PUBLIC_API_URL. */
 export const API_URL =
   process.env.EXPO_PUBLIC_API_URL ?? 'https://api-production-a0b6.up.railway.app';
 
-export type Health = {
-  status: 'ok' | 'degraded';
-  database: 'ok' | 'unreachable';
-  version: string;
-  commit: string | null;
-};
+const TIMEOUT_MS = 15_000;
 
-export async function getHealth(signal?: AbortSignal): Promise<Health> {
-  const response = await fetch(`${API_URL}/health`, { signal });
-  // Un 503 trae el mismo cuerpo, con la base de datos marcada como caída.
-  if (!response.ok && response.status !== 503) {
-    throw new Error(`HTTP ${response.status}`);
+/** Versión del aviso de privacidad que se acepta en la bienvenida (GET /privacy en la API). */
+export const CONSENT_VERSION = 1;
+export const PRIVACY_URL = `${API_URL}/privacy`;
+
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly code?: string,
+  ) {
+    super(`HTTP ${status}${code ? ` (${code})` : ''}`);
   }
-  return response.json();
 }
+
+type RequestOptions = { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown; auth?: boolean };
+
+async function request<T>(path: string, { method = 'GET', body, auth = true }: RequestOptions = {}) {
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (auth) {
+    const key = await getDeviceKey();
+    if (!key) throw new ApiError(401, 'no_device_key');
+    headers.Authorization = `Bearer ${key}`;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const response = await fetch(`${API_URL}${path}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+      throw new ApiError(response.status, data?.error);
+    }
+    return (response.status === 204 ? undefined : await response.json()) as T;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export const api = {
+  health: () => request<Health>('/health', { auth: false }),
+  login: (deviceKey: string, locale: Locale) =>
+    request<{ user_id: string; created: boolean }>('/v1/auth/device', {
+      method: 'POST',
+      body: { device_key: deviceKey, locale, consent_version: CONSENT_VERSION },
+      auth: false,
+    }),
+  updateLocale: (locale: Locale) => request<unknown>('/v1/me', { method: 'PATCH', body: { locale } }),
+  deleteMe: () => request<void>('/v1/me', { method: 'DELETE' }),
+
+  catalog: (locale: Locale) => request<Catalog>(`/v1/catalog?locale=${locale}`, { auth: false }),
+
+  spaces: () => request<Space[]>('/v1/spaces'),
+  createSpace: (name: string, kind: SpaceKind) =>
+    request<Space>('/v1/spaces', { method: 'POST', body: { name, kind } }),
+  deleteSpace: (id: string) => request<void>(`/v1/spaces/${id}`, { method: 'DELETE' }),
+
+  createCheckin: (body: NewCheckin) =>
+    request<CheckinWithProposal>('/v1/checkins', { method: 'POST', body }),
+  decline: (id: string, reason: 'other_idea' | 'cannot_here') =>
+    request<CheckinWithProposal>(`/v1/checkins/${id}/decline`, { method: 'POST', body: { reason } }),
+  accept: (id: string, remindInMinutes: number | null) =>
+    request<Checkin>(`/v1/checkins/${id}/accept`, {
+      method: 'POST',
+      body: { remind_in_minutes: remindInMinutes },
+    }),
+  outcome: (id: string, answers: { discomfort: number; effort: number; attribution: Response }) =>
+    request<OutcomeResult>(`/v1/checkins/${id}/outcome`, {
+      method: 'POST',
+      body: {
+        discomfort_after: answers.discomfort,
+        effort_after: answers.effort,
+        attribution: answers.attribution,
+      },
+    }),
+  abandon: (id: string) => request<Checkin>(`/v1/checkins/${id}/abandon`, { method: 'POST' }),
+  checkins: (status?: CheckinStatus) =>
+    request<Checkin[]>(`/v1/checkins${status ? `?status=${status}` : ''}`),
+  checkin: (id: string) => request<Checkin>(`/v1/checkins/${id}`),
+
+  playbook: () => request<PlaybookEntry[]>('/v1/playbook'),
+};

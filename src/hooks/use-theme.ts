@@ -1,14 +1,11 @@
-/**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
- */
-
-import { Colors } from '@/constants/theme';
+import { Colors, type Palette } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useSettings } from '@/lib/settings';
 
-export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'dark' ? 'dark' : 'light';
-
-  return Colors[theme];
+/** Paleta activa: claro u oscuro según el teléfono, con "Contraste suave" si la persona lo eligió. */
+export function useTheme(): Palette {
+  const dark = useColorScheme() === 'dark';
+  const { settings } = useSettings();
+  if (settings.softContrast) return dark ? Colors.darkSoft : Colors.lightSoft;
+  return dark ? Colors.dark : Colors.light;
 }
