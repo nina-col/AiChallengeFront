@@ -8,6 +8,7 @@ import type {
   Health,
   NewCheckin,
   OutcomeResult,
+  PhotoScanResult,
   PlaybookEntry,
   Response,
   Space,
@@ -33,9 +34,17 @@ export class ApiError extends Error {
   }
 }
 
-type RequestOptions = { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown; auth?: boolean };
+type RequestOptions = {
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  body?: unknown;
+  auth?: boolean;
+  timeoutMs?: number;
+};
 
-async function request<T>(path: string, { method = 'GET', body, auth = true }: RequestOptions = {}) {
+async function request<T>(
+  path: string,
+  { method = 'GET', body, auth = true, timeoutMs = TIMEOUT_MS }: RequestOptions = {},
+) {
   const headers: Record<string, string> = { Accept: 'application/json' };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (auth) {
@@ -45,7 +54,7 @@ async function request<T>(path: string, { method = 'GET', body, auth = true }: R
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(`${API_URL}${path}`, {
       method,
@@ -105,4 +114,12 @@ export const api = {
   checkin: (id: string) => request<Checkin>(`/v1/checkins/${id}`),
 
   playbook: () => request<PlaybookEntry[]>('/v1/playbook'),
+
+  /** La IA tarda ~10 s en mirar la foto: este pedido tiene su propio tiempo límite. */
+  scanPhoto: (imageBase64: string, task: string, audio: string[]) =>
+    request<PhotoScanResult>('/v1/scan/photo', {
+      method: 'POST',
+      body: { image_base64: imageBase64, task, audio },
+      timeoutMs: 60_000,
+    }),
 };

@@ -7,6 +7,9 @@ export type Settings = {
   motion: 'system' | 'reduced';
   haptics: boolean;
   softContrast: boolean;
+  /** Consentimientos separados para el escaneo; apagados hasta que la persona los active. */
+  scanAudio: boolean;
+  scanPhoto: boolean;
   onboarded: boolean;
 };
 
@@ -15,6 +18,8 @@ const DEFAULTS: Settings = {
   motion: 'system',
   haptics: false,
   softContrast: false,
+  scanAudio: false,
+  scanPhoto: false,
   onboarded: false,
 };
 

@@ -2,7 +2,7 @@
   "expo": {
     "name": "SpaceEase",
     "slug": "spaceease",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "spaceease",
@@ -36,7 +36,22 @@
           "imageWidth": 200
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SpaceEase usa la cámara para tomar una foto de tu lugar de trabajo. Las caras se pixelan en el teléfono y la foto no se guarda.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "SpaceEase escucha 10 segundos para notar voces o ruido de fondo. El sonido se analiza en el teléfono y se borra; nunca se envía."
+        }
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -58,6 +73,10 @@
     },
     "updates": {
       "url": "https://u.expo.dev/8a260d13-9f19-4285-bfb0-0d42e197dec7"
+    },
+    "locales": {
+      "es": "./locales/es.json",
+      "en": "./locales/en.json"
     }
   }
 }

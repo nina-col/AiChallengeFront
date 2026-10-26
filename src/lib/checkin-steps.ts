@@ -17,7 +17,8 @@ export function useCheckinSteps() {
   const catalog = useCatalog();
   const askPlace = (spaces.data?.length ?? 0) !== 1;
   const domains = catalog.data?.domains.map((d) => d.id) ?? FALLBACK_DOMAINS;
-  const order = ['task', 'feeling', ...(askPlace ? ['place'] : []), 'discomfort', 'effort', ...domains];
+  // 'scan' (foto y sonido) es opcional; sus pantallas internas no cuentan como pasos.
+  const order = ['task', 'feeling', ...(askPlace ? ['place'] : []), 'discomfort', 'effort', 'scan', ...domains];
 
   return {
     total: order.length,

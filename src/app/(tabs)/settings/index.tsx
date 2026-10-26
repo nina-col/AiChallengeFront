@@ -15,6 +15,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { api, PRIVACY_URL } from '@/lib/api';
 import { cancelAllReminders } from '@/lib/notifications';
+import { canAnalyzePhoto } from '@/lib/scan';
 import { keys, queryClient, useHealth, useSpaces } from '@/lib/queries';
 import { forgetDeviceKey } from '@/lib/session';
 import { useSettings, type Settings } from '@/lib/settings';
@@ -57,13 +58,19 @@ export default function SettingsScreen() {
     ]);
   }
 
-  const toggle = (key: keyof Pick<Settings, 'haptics' | 'softContrast'>, label: string, first = false) => (
+  const toggle = (
+    key: keyof Pick<Settings, 'haptics' | 'softContrast' | 'scanAudio' | 'scanPhoto'>,
+    label: string,
+    first = false,
+    disabled = false,
+  ) => (
     <GroupRow first={first}>
       <View style={styles.switchRow}>
         <ThemedText style={styles.flex}>{label}</ThemedText>
         <Switch
           accessibilityLabel={label}
-          value={settings[key]}
+          value={settings[key] && !disabled}
+          disabled={disabled}
           onValueChange={(value) => update({ [key]: value })}
           trackColor={{ true: theme.primary }}
         />
@@ -109,6 +116,11 @@ export default function SettingsScreen() {
       <Group>
         {toggle('haptics', t.settings.haptics, true)}
         {toggle('softContrast', t.settings.softContrast)}
+      </Group>
+
+      <Group title={t.settings.scanSection} footer={t.settings.scanSectionFooter}>
+        {toggle('scanAudio', t.scan.listenConsent, true)}
+        {toggle('scanPhoto', t.scan.photoConsent, false, !canAnalyzePhoto)}
       </Group>
 
       <Group title={t.settings.places}>

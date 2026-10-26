@@ -1,0 +1,4 @@
+{
+  "NSCameraUsageDescription": "SpaceEase usa la cámara para tomar una foto de tu lugar de trabajo. Las caras se pixelan en el teléfono y la foto no se guarda.",
+  "NSMicrophoneUsageDescription": "SpaceEase escucha 10 segundos para notar voces o ruido de fondo. El sonido se analiza en el teléfono y se borra; nunca se envía."
+}

@@ -68,7 +68,7 @@ export type NewCheckin = {
   feeling: string;
   effort_before: number;
   discomfort_before: number;
-  observations: { stimulus: string; response: Response }[];
+  observations: { stimulus: string; response: Response; source: 'question' | 'photo' | 'audio' }[];
   focus_stimulus: string | null;
 };
 
@@ -83,6 +83,17 @@ export type PlaybookEntry = {
   trials: number;
   last_tried: string | null;
 };
+
+/** Hipótesis de la foto: un punto (0–1 desde arriba a la izquierda) y una pregunta para confirmar. */
+export type Hypothesis = {
+  stimulus: string;
+  x: number;
+  y: number;
+  question: string;
+  confidence: 'low' | 'medium' | 'high';
+};
+
+export type PhotoScanResult = { hypotheses: Hypothesis[]; model: string };
 
 export type Health = {
   status: 'ok' | 'degraded';
