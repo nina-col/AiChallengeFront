@@ -12,6 +12,7 @@ import { api } from '@/lib/api';
 import { useReducedMotion } from '@/lib/feedback';
 import { queryClient } from '@/lib/queries';
 import { SettingsProvider, useSettings } from '@/lib/settings';
+import { preloadSounds } from '@/lib/sounds';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,6 +36,9 @@ function RootNavigator() {
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
+  useEffect(() => {
+    if (ready && settings.sounds) preloadSounds();
+  }, [ready, settings.sounds]);
   useOpenCheckoutFromNotification(ready && settings.onboarded);
   useServerLocale(locale, ready && settings.onboarded);
 
@@ -55,23 +59,32 @@ function RootNavigator() {
         },
       }}>
       <StatusBar style="auto" />
-      {/* Las pestañas y los flujos llevan su propio Stack con encabezado nativo. */}
+      {/*
+        Las pestañas y los flujos llevan su propio Stack con encabezado nativo. Los flujos van a
+        pantalla completa: en hoja, deslizar hacia abajo arrastraba los botones fuera de la vista
+        y podía cerrar el registro a medias. Se cierran con "Cerrar", arriba a la derecha.
+      */}
       <Stack screenOptions={{ headerShown: false, animation: reducedMotion ? 'fade' : 'default' }}>
-        <Stack.Screen name="checkin" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="checkout" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="request" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="checkin" options={{ presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="checkout" options={{ presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="request" options={{ presentation: 'fullScreenModal' }} />
+        {/* Solo se lee (no tiene botones abajo): basta una hoja que se cierra deslizando. */}
+        <Stack.Screen name="recap" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );
 }
 
-/** Tocar el aviso "¿cómo te fue?" abre directo la pregunta de ese registro. */
+/** Tocar un aviso abre lo suyo: "¿cómo te fue?" va a la pregunta de ese registro; el resumen, a la semana. */
 function useOpenCheckoutFromNotification(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
     const open = (response: Notifications.NotificationResponse) => {
-      const id = response.notification.request.content.data?.checkinId;
-      if (typeof id === 'string') router.push({ pathname: '/checkout/[id]', params: { id } });
+      const data = response.notification.request.content.data;
+      if (data?.kind === 'recap') router.push('/recap');
+      else if (typeof data?.checkinId === 'string') {
+        router.push({ pathname: '/checkout/[id]', params: { id: data.checkinId } });
+      }
     };
     Notifications.getLastNotificationResponseAsync()
       .then((response) => {

@@ -2,10 +2,11 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Notice } from '@/components/notice';
+import { ScanSweep } from '@/components/scan-sweep';
 import { StepScreen } from '@/components/step-screen';
 import { Radius } from '@/constants/theme';
 import { useT } from '@/i18n';
@@ -26,6 +27,9 @@ export default function Photo() {
   const [preview, setPreview] = useState<PreparedPhoto | null>(null);
   const [busy, setBusy] = useState<'capture' | 'upload' | null>(null);
   const [failed, setFailed] = useState(false);
+  // La cámara cabe sin desplazar la pantalla, incluso en un iPhone SE: como mucho la mitad del alto.
+  const { height } = useWindowDimensions();
+  const frameHeight = Math.round(height * 0.5);
 
   function goToFindings(photo: PreparedPhoto | undefined, photoFindings: Finding[], scanFailed: boolean) {
     update({ photo, scanFailed, findings: [...photoFindings, ...audioFindings(draft.audioHints ?? [], t.scan.audioQuestions)] });
@@ -82,7 +86,11 @@ export default function Photo() {
         hint={t.scan.photoHint}
         footer={
           <>
-            {permission.canAskAgain ? <Button title={t.scan.takePhoto} onPress={requestPermission} /> : null}
+            {permission.canAskAgain ? (
+              <Button title={t.scan.takePhoto} onPress={requestPermission} />
+            ) : (
+              <Button title={t.scan.openSettings} onPress={() => Linking.openSettings()} />
+            )}
             <Button variant="secondary" title={t.scan.continueWithout} onPress={() => goToFindings(undefined, [], false)} />
           </>
         }>
@@ -102,11 +110,10 @@ export default function Photo() {
             <Button variant="secondary" title={t.scan.retake} disabled={busy === 'upload'} onPress={retake} />
           </>
         }>
-        <Image
-          source={{ uri: preview.uri }}
-          style={[styles.photo, { aspectRatio: preview.width / preview.height }]}
-          accessibilityLabel={t.scan.previewTitle}
-        />
+        <View style={[styles.photo, { aspectRatio: preview.width / preview.height, maxHeight: frameHeight }]}>
+          <Image source={{ uri: preview.uri }} style={StyleSheet.absoluteFill} accessibilityLabel={t.scan.previewTitle} />
+          <ScanSweep active={busy === 'upload'} />
+        </View>
       </StepScreen>
     );
   }
@@ -118,7 +125,7 @@ export default function Photo() {
       footer={
         <Button title={t.scan.takePhoto} disabled={!ready} loading={busy === 'capture'} onPress={capture} />
       }>
-      <View style={styles.cameraFrame}>
+      <View style={[styles.cameraFrame, { height: frameHeight, width: (frameHeight * 3) / 4 }]}>
         <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" onCameraReady={() => setReady(true)} />
       </View>
       {failed ? <Notice text={t.common.somethingFailed} /> : null}
@@ -128,16 +135,18 @@ export default function Photo() {
 
 const styles = StyleSheet.create({
   cameraFrame: {
-    width: '100%',
-    aspectRatio: 3 / 4,
+    maxWidth: '100%',
+    alignSelf: 'center',
     borderRadius: Radius.md,
     borderCurve: 'continuous',
     overflow: 'hidden',
   },
   photo: {
     width: '100%',
+    alignSelf: 'center',
     borderRadius: Radius.md,
     borderCurve: 'continuous',
+    overflow: 'hidden',
   },
 });
 

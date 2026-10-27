@@ -12,7 +12,7 @@ export default function Feeling() {
   const { draft, update } = useCheckinDraft();
 
   return (
-    <StepScreen step={t.checkin.step(steps.number('feeling'), steps.total)} title={t.checkin.feelingTitle}>
+    <StepScreen step={steps.progress('feeling')} title={t.checkin.feelingTitle}>
       <ChoiceList
         options={catalog.data?.feelings ?? []}
         selected={draft.feeling ? [draft.feeling] : []}

@@ -1,9 +1,12 @@
 import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { LayoutAnimationConfig } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { checkEntering } from '@/lib/animations';
+import { useMotionLevel } from '@/lib/feedback';
 
 export type Option = { id: string; label: string; hint?: string };
 
@@ -17,12 +20,15 @@ type ChoiceListProps = {
 
 /**
  * Lista de opciones en un solo grupo con separadores finos (no una tarjeta por fila).
- * Lo elegido se nota por el fondo y por un ícono: nunca solo por el color.
+ * Lo elegido se nota por el fondo y por un ícono: nunca solo por el color. Elegir no suena ni
+ * vibra (es lo más frecuente de la app); con detalles, la palomita aparece con un fundido corto.
  */
 export function ChoiceList({ options, selected, onSelect, multiple = false }: ChoiceListProps) {
   const theme = useTheme();
+  const level = useMotionLevel();
 
   return (
+    <LayoutAnimationConfig skipEntering>
     <View
       style={[styles.group, { backgroundColor: theme.backgroundElement }]}
       accessibilityRole={multiple ? undefined : 'radiogroup'}>
@@ -50,18 +56,21 @@ export function ChoiceList({ options, selected, onSelect, multiple = false }: Ch
               ) : null}
             </View>
             {multiple || isSelected ? (
-              <SymbolView
-                name={icon}
-                size={22}
-                tintColor={isSelected ? theme.primary : theme.textSecondary}
-                accessibilityElementsHidden
-                importantForAccessibility="no"
-              />
+              <Animated.View key={isSelected ? 'on' : 'off'} entering={isSelected ? checkEntering(level) : undefined}>
+                <SymbolView
+                  name={icon}
+                  size={22}
+                  tintColor={isSelected ? theme.primary : theme.textSecondary}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no"
+                />
+              </Animated.View>
             ) : null}
           </Pressable>
         );
       })}
     </View>
+    </LayoutAnimationConfig>
   );
 }
 

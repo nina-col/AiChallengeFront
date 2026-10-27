@@ -1,27 +1,48 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { DeskScene } from '@/components/desk/desk-scene';
 import { Group, GroupRow } from '@/components/group';
 import { Notice } from '@/components/notice';
-import { PixelScene } from '@/components/pixel-scene';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
-import { useLabels, usePlaybook, useTrying } from '@/lib/queries';
+import { useDesk } from '@/lib/desk';
+import { useMotionLevel } from '@/lib/feedback';
+import { cancelRecap } from '@/lib/notifications';
+import { keys, queryClient, useLabels, usePlaybook, useTrying } from '@/lib/queries';
+import { useSettings } from '@/lib/settings';
+
+/** Tras 5 semanas sin abrir el resumen, se pregunta una vez si lo sigue queriendo (nunca se insiste). */
+const RECAP_UNSEEN_MS = 5 * 7 * 24 * 60 * 60 * 1000;
 
 export default function Today() {
   const t = useT();
   const theme = useTheme();
   const labels = useLabels();
+  const level = useMotionLevel();
+  const { settings, update } = useSettings();
   const trying = useTrying();
   const playbook = usePlaybook();
+  const desk = useDesk();
+  const [openedAt] = useState(() => Date.now());
   const lastHelped = playbook.data?.[0];
+  // Si la persona ocultó su progreso, la escena se queda sin objetos (no se borra nada).
+  const items = settings.showDesk ? desk.items : [];
+  const askAboutRecap = settings.recapDay !== 'off' && openedAt - settings.recapSeenAt > RECAP_UNSEEN_MS;
 
   function refresh() {
     trying.refetch();
     playbook.refetch();
+    queryClient.invalidateQueries({ queryKey: keys.progress });
+  }
+
+  async function stopRecap() {
+    await cancelRecap();
+    update({ recapDay: 'off' });
   }
 
   return (
@@ -31,7 +52,7 @@ export default function Today() {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={trying.isRefetching} onRefresh={refresh} />}>
       {trying.data?.length ? (
-        <Group title={t.today.tryingTitle}>
+        <Group title={t.today.tryingTitle} footer={t.today.tryingFooter}>
           {trying.data.map((checkin, index) => (
             <GroupRow key={checkin.id} first={index === 0}>
               <ThemedText type="bodyStrong">{checkin.adjustment?.title}</ThemedText>
@@ -48,8 +69,27 @@ export default function Today() {
         </Group>
       ) : null}
 
+      <View style={styles.desk}>
+        <DeskScene
+          items={items}
+          interactive
+          accessibilityLabel={t.desk.label(items.map((item) => t.desk.items[item]))}
+        />
+        <View style={styles.caption}>
+          {settings.showDesk ? (
+            <ThemedText type="footnote" themeColor="textSecondary" style={styles.shrink}>
+              {desk.trials ? `${t.today.deskTitle} · ${t.today.deskCount(desk.trials)}` : t.today.deskEmpty}
+            </ThemedText>
+          ) : null}
+          {level === 'detailed' ? (
+            <ThemedText type="footnote" themeColor="textSecondary" importantForAccessibility="no">
+              {t.today.deskTap}
+            </ThemedText>
+          ) : null}
+        </View>
+      </View>
+
       <View style={styles.prompt}>
-        <PixelScene size={96} />
         <ThemedText type="headline" style={styles.center}>
           {t.today.promptTitle}
         </ThemedText>
@@ -57,7 +97,37 @@ export default function Today() {
           {t.today.promptBody}
         </ThemedText>
         <Button title={t.today.start} onPress={() => router.push('/checkin/task')} style={styles.cta} />
+        <Button variant="plain" title={t.today.seeWeek} onPress={() => router.push('/recap')} style={styles.cta} />
       </View>
+
+      {askAboutRecap ? (
+        <Group title={t.today.recapStillTitle}>
+          <GroupRow first>
+            <ThemedText type="callout">{t.today.recapStillBody}</ThemedText>
+            <Button
+              variant="secondary"
+              title={t.today.recapKeep}
+              onPress={() => update({ recapSeenAt: Date.now() })}
+            />
+            <Button variant="plain" title={t.today.recapStop} onPress={stopRecap} />
+          </GroupRow>
+        </Group>
+      ) : null}
+
+      {/* Se ofrece una sola vez y no vuelve a aparecer: la persona elige, sin insistir. */}
+      {!settings.experienceOffered ? (
+        <Group title={t.today.experienceTitle}>
+          <GroupRow first>
+            <ThemedText type="callout">{t.today.experienceBody}</ThemedText>
+            <Button
+              variant="secondary"
+              title={t.today.experienceYes}
+              onPress={() => update({ details: true, experienceOffered: true })}
+            />
+            <Button variant="plain" title={t.today.experienceNo} onPress={() => update({ experienceOffered: true })} />
+          </GroupRow>
+        </Group>
+      ) : null}
 
       {lastHelped ? (
         <Group title={t.today.lastHelped}>
@@ -84,10 +154,21 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
   },
+  desk: {
+    gap: Spacing.two,
+  },
+  caption: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: Spacing.two,
+    paddingHorizontal: Spacing.one,
+  },
+  shrink: {
+    flexShrink: 1,
+  },
   prompt: {
     alignItems: 'center',
     gap: Spacing.three,
-    paddingTop: Spacing.three,
   },
   center: {
     textAlign: 'center',

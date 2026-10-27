@@ -58,7 +58,7 @@ export default function Scan() {
 
   return (
     <StepScreen
-      step={t.checkin.step(steps.number('scan'), steps.total)}
+      step={steps.progress('scan')}
       title={t.scan.title}
       hint={t.scan.hint}
       footer={

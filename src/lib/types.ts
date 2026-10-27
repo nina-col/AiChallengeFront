@@ -84,6 +84,9 @@ export type PlaybookEntry = {
   last_tried: string | null;
 };
 
+/** Lo que la persona ya sabe de su espacio: cuenta pruebas, no resultados, y solo crece. */
+export type Progress = { trials: number; tried: string[] };
+
 /** Hipótesis de la foto: un punto (0–1 desde arriba a la izquierda) y una pregunta para confirmar. */
 export type Hypothesis = {
   stimulus: string;

@@ -7,18 +7,23 @@ import { Alert, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
+import { DeskScene } from '@/components/desk/desk-scene';
 import { Group, GroupRow } from '@/components/group';
+import { Notice } from '@/components/notice';
+import { SegmentedChoice } from '@/components/segmented-choice';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { api, PRIVACY_URL } from '@/lib/api';
-import { cancelAllReminders } from '@/lib/notifications';
+import { useDesk } from '@/lib/desk';
+import { cancelAllReminders, cancelRecap, scheduleRecap } from '@/lib/notifications';
 import { canAnalyzePhoto } from '@/lib/scan';
 import { keys, queryClient, useHealth, useSpaces } from '@/lib/queries';
 import { forgetDeviceKey } from '@/lib/session';
-import { useSettings, type Settings } from '@/lib/settings';
+import { RECAP_HOURS, RECAP_WEEKDAY, useSettings, type RecapDay, type RecapHour, type Settings } from '@/lib/settings';
+import { playSound, preloadSounds, VOLUME } from '@/lib/sounds';
 
 export default function SettingsScreen() {
   const t = useT();
@@ -26,7 +31,9 @@ export default function SettingsScreen() {
   const { settings, update, reset } = useSettings();
   const spaces = useSpaces();
   const health = useHealth();
+  const desk = useDesk();
   const [newPlace, setNewPlace] = useState('');
+  const [recapDenied, setRecapDenied] = useState(false);
 
   const addPlace = useMutation({
     mutationFn: () => api.createSpace(newPlace.trim(), 'other'),
@@ -59,24 +66,58 @@ export default function SettingsScreen() {
   }
 
   const toggle = (
-    key: keyof Pick<Settings, 'haptics' | 'softContrast' | 'scanAudio' | 'scanPhoto'>,
+    key: keyof Pick<Settings, 'details' | 'sounds' | 'haptics' | 'softContrast' | 'showDesk' | 'scanAudio' | 'scanPhoto'>,
     label: string,
     first = false,
     disabled = false,
+    hint?: string,
   ) => (
     <GroupRow first={first}>
       <View style={styles.switchRow}>
-        <ThemedText style={styles.flex}>{label}</ThemedText>
+        <View style={styles.flex}>
+          <ThemedText>{label}</ThemedText>
+          {hint ? (
+            <ThemedText type="footnote" themeColor="textSecondary">
+              {hint}
+            </ThemedText>
+          ) : null}
+        </View>
         <Switch
           accessibilityLabel={label}
+          accessibilityHint={hint}
           value={settings[key] && !disabled}
           disabled={disabled}
-          onValueChange={(value) => update({ [key]: value })}
+          // Si la persona ya eligió aquí, el aviso de Hoy no hace falta.
+          onValueChange={(value) =>
+            update({ [key]: value, ...(key === 'details' || key === 'sounds' ? { experienceOffered: true } : {}) })
+          }
           trackColor={{ true: theme.primary }}
         />
       </View>
     </GroupRow>
   );
+
+  async function chooseRecap(day: RecapDay, hour: RecapHour = settings.recapHour) {
+    setRecapDenied(false);
+    if (day === 'off') {
+      await cancelRecap();
+      update({ recapDay: 'off' });
+      return;
+    }
+    const scheduled = await scheduleRecap(
+      RECAP_WEEKDAY[day],
+      hour,
+      t.recap.notificationTitle,
+      t.recap.notificationBody,
+    ).catch(() => false);
+    if (scheduled) update({ recapDay: day, recapHour: hour, recapSeenAt: Date.now(), recapOffered: true });
+    else setRecapDenied(true);
+  }
+
+  function testSound() {
+    preloadSounds();
+    playSound('result', VOLUME[settings.soundVolume]);
+  }
 
   return (
     <ScrollView
@@ -100,6 +141,20 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.block}>
+        <ThemedText type="footnote" themeColor="textSecondary" accessibilityRole="header" style={styles.label}>
+          {t.settings.experience}
+        </ThemedText>
+        <DeskScene
+          items={desk.items}
+          interactive
+          accessibilityLabel={t.desk.label(desk.items.map((item) => t.desk.items[item]))}
+        />
+        <ThemedText type="footnote" themeColor="textSecondary" style={styles.label} importantForAccessibility="no">
+          {t.settings.previewHint}
+        </ThemedText>
+      </View>
+
+      <View style={styles.block}>
         <ThemedText type="footnote" themeColor="textSecondary" style={styles.label}>
           {t.settings.motion}
         </ThemedText>
@@ -113,10 +168,56 @@ export default function SettingsScreen() {
         />
       </View>
 
-      <Group>
-        {toggle('haptics', t.settings.haptics, true)}
+      <Group footer={t.settings.experienceFooter}>
+        {toggle('details', t.settings.details, true, false, t.settings.detailsHint)}
+        {toggle('sounds', t.settings.sounds, false, false, t.settings.soundsHint)}
+        {settings.sounds ? (
+          <GroupRow>
+            <ThemedText type="footnote" themeColor="textSecondary">
+              {t.settings.volume}
+            </ThemedText>
+            <SegmentedChoice
+              label={t.settings.volume}
+              options={[
+                { id: 'low', label: t.settings.volumeLow },
+                { id: 'medium', label: t.settings.volumeMedium },
+              ]}
+              selected={settings.soundVolume}
+              onSelect={(id) => update({ soundVolume: id as Settings['soundVolume'] })}
+            />
+            <Button variant="plain" title={t.settings.testSound} style={styles.inline} onPress={testSound} />
+          </GroupRow>
+        ) : null}
+        {toggle('haptics', t.settings.haptics)}
         {toggle('softContrast', t.settings.softContrast)}
+        {toggle('showDesk', t.settings.showDesk, false, false, t.settings.showDeskHint)}
       </Group>
+
+      <View style={styles.block}>
+        <ThemedText type="footnote" themeColor="textSecondary" style={styles.label}>
+          {t.settings.recap}
+        </ThemedText>
+        <ChoiceList
+          options={[
+            { id: 'off', label: t.settings.recapOff },
+            ...(['mon', 'wed', 'fri', 'sun'] as const).map((day) => ({ id: day, label: t.settings.recapDays[day] })),
+          ]}
+          selected={[settings.recapDay]}
+          onSelect={(id) => chooseRecap(id as RecapDay)}
+        />
+        {settings.recapDay !== 'off' ? (
+          <SegmentedChoice
+            label={t.settings.recapTime}
+            options={RECAP_HOURS.map((hour) => ({ id: String(hour), label: `${hour}:00` }))}
+            selected={String(settings.recapHour)}
+            onSelect={(id) => chooseRecap(settings.recapDay, Number(id) as RecapHour)}
+          />
+        ) : null}
+        {recapDenied ? <Notice text={t.settings.recapDenied} /> : null}
+        <ThemedText type="footnote" themeColor="textSecondary" style={styles.label}>
+          {t.settings.recapFooter}
+        </ThemedText>
+      </View>
 
       <Group title={t.settings.scanSection} footer={t.settings.scanSectionFooter}>
         {toggle('scanAudio', t.scan.listenConsent, true)}
@@ -212,6 +313,7 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+    gap: Spacing.half,
   },
   inline: {
     alignSelf: 'flex-start',

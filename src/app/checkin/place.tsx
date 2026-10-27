@@ -35,7 +35,7 @@ export default function Place() {
   });
 
   return (
-    <StepScreen step={t.checkin.step(steps.number('place'), steps.total)} title={t.checkin.placeTitle}>
+    <StepScreen step={steps.progress('place')} title={t.checkin.placeTitle}>
       {spaces.data?.length ? (
         <ChoiceList
           options={spaces.data.map((s) => ({ id: s.id, label: s.name }))}

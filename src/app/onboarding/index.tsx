@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
-import { PixelScene } from '@/components/pixel-scene';
+import { DeskScene } from '@/components/desk/desk-scene';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -15,7 +15,8 @@ export default function Welcome() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.background }]}>
       <View style={styles.hero}>
-        <PixelScene size={144} />
+        {/* La metáfora de la app desde el primer momento: la onda del monitor se calma. */}
+        <DeskScene items={[]} settle accessibilityLabel={t.desk.label([])} style={styles.scene} />
         <ThemedText type="title" accessibilityRole="header">
           {t.onboarding.welcomeTitle}
         </ThemedText>
@@ -44,6 +45,10 @@ const styles = StyleSheet.create({
   body: {
     textAlign: 'center',
     maxWidth: 340,
+  },
+  scene: {
+    maxWidth: 420,
+    marginBottom: Spacing.three,
   },
   footer: {
     width: '100%',

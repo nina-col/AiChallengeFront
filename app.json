@@ -2,7 +2,7 @@
   "expo": {
     "name": "SpaceEase",
     "slug": "spaceease",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "spaceease",
@@ -41,7 +41,6 @@
         "expo-camera",
         {
           "cameraPermission": "SpaceEase usa la cámara para tomar una foto de tu lugar de trabajo. Las caras se pixelan en el teléfono y la foto no se guarda.",
-          "microphonePermission": false,
           "recordAudioAndroid": false
         }
       ],

@@ -12,7 +12,7 @@ export default function Discomfort() {
 
   return (
     <StepScreen
-      step={t.checkin.step(steps.number('discomfort'), steps.total)}
+      step={steps.progress('discomfort')}
       title={t.checkin.discomfortTitle}
       hint={t.checkin.scaleHint}>
       <ScaleQuestion

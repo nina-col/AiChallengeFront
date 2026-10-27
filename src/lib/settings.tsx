@@ -2,25 +2,58 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 /** Preferencias de este teléfono. Los valores por defecto son los de menor estímulo. */
+export type RecapDay = 'off' | 'mon' | 'wed' | 'fri' | 'sun';
+
+/** Día de la semana como lo cuenta iOS (1 = domingo). */
+export type RecapHour = 9 | 13 | 17;
+export const RECAP_HOURS: RecapHour[] = [9, 13, 17];
+
+export const RECAP_WEEKDAY: Record<Exclude<RecapDay, 'off'>, number> = { sun: 1, mon: 2, wed: 4, fri: 6 };
+
 export type Settings = {
   language: 'system' | 'es' | 'en';
   motion: 'system' | 'reduced';
+  /** Modo "Con detalles": la escena en pixel art cobra vida y los logros se celebran. */
+  details: boolean;
+  /** Sonidos suaves de la interfaz. Siempre callan con el interruptor de silencio de iOS. */
+  sounds: boolean;
+  soundVolume: 'low' | 'medium';
   haptics: boolean;
+  /** "Tu escritorio" en Hoy. Se puede ocultar; ocultarlo no borra nada. */
+  showDesk: boolean;
+  /** Resumen semanal opcional: el día y la hora que elija la persona. */
+  recapDay: RecapDay;
+  recapHour: RecapHour;
+  /** Última vez que abrió el resumen (ms). Tras 5 semanas sin abrirlo, se pregunta si lo sigue queriendo. */
+  recapSeenAt: number;
+  /** Ya se ofreció el resumen al terminar una prueba (se ofrece una sola vez). */
+  recapOffered: boolean;
   softContrast: boolean;
   /** Consentimientos separados para el escaneo; apagados hasta que la persona los active. */
   scanAudio: boolean;
   scanPhoto: boolean;
   onboarded: boolean;
+  /** Ya se ofreció elegir cómo se ve y suena la app (en la bienvenida o con el aviso de Hoy). */
+  experienceOffered: boolean;
 };
 
 const DEFAULTS: Settings = {
   language: 'system',
   motion: 'system',
+  details: false,
+  sounds: false,
+  soundVolume: 'low',
   haptics: false,
+  showDesk: true,
+  recapDay: 'off',
+  recapHour: 9,
+  recapSeenAt: 0,
+  recapOffered: false,
   softContrast: false,
   scanAudio: false,
   scanPhoto: false,
   onboarded: false,
+  experienceOffered: false,
 };
 
 const STORAGE_KEY = 'spaceease.settings.v1';

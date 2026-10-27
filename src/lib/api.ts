@@ -10,6 +10,7 @@ import type {
   OutcomeResult,
   PhotoScanResult,
   PlaybookEntry,
+  Progress,
   Response,
   Space,
   SpaceKind,
@@ -114,6 +115,7 @@ export const api = {
   checkin: (id: string) => request<Checkin>(`/v1/checkins/${id}`),
 
   playbook: () => request<PlaybookEntry[]>('/v1/playbook'),
+  progress: () => request<Progress>('/v1/progress'),
 
   /** La IA tarda ~10 s en mirar la foto: este pedido tiene su propio tiempo límite. */
   scanPhoto: (imageBase64: string, task: string, audio: string[]) =>

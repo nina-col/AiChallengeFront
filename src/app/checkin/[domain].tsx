@@ -66,7 +66,7 @@ export default function DomainStep() {
 
   return (
     <StepScreen
-      step={t.checkin.step(steps.number(domainId), steps.total)}
+      step={steps.progress(domainId)}
       title={domain?.question ?? ''}
       hint={t.checkin.domainHint}
       footer={

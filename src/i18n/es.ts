@@ -5,6 +5,9 @@
  */
 
 const times = (n: number) => (n === 1 ? 'vez' : 'veces');
+/** "A", "A y B", "A, B y C". */
+const list = (items: string[]) =>
+  items.length <= 1 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}`;
 
 const es = {
   common: {
@@ -52,8 +55,63 @@ const es = {
     promptBody: 'Revisamos juntos tu entorno y te proponemos un solo ajuste para probar.',
     start: 'Revisar mi entorno',
     tryingTitle: 'En prueba',
+    tryingFooter: 'Todo está como lo dejaste. Puedes contarlo cuando quieras.',
     tellMe: 'Contar cómo me fue',
     lastHelped: 'Lo último que te ayudó',
+    deskTitle: 'Tu escritorio',
+    deskEmpty: 'Cada prueba que termines deja aquí un objeto, haya ayudado o no.',
+    deskCount: (n: number) => `${n} ${n === 1 ? 'prueba terminada' : 'pruebas terminadas'}`,
+    deskTap: 'Toca la escena para darle vida.',
+    seeWeek: 'Ver mi semana',
+    experienceTitle: '¿Le damos más vida a la app?',
+    experienceBody:
+      'Con animaciones con detalles, tu escritorio cobra vida y lo que te ayuda se celebra. Los sonidos suaves y la vibración se activan aparte, en Ajustes.',
+    experienceYes: 'Activar animaciones con detalles',
+    experienceNo: 'Así está bien',
+    recapStillTitle: '¿Sigues queriendo el resumen semanal?',
+    recapStillBody: 'Hace unas semanas que no lo abres. Está bien de las dos formas.',
+    recapKeep: 'Sí, seguir',
+    recapStop: 'Ya no, gracias',
+  },
+  recap: {
+    title: 'Tu semana',
+    hint: 'Los últimos 7 días, siempre en el mismo orden.',
+    notificationTitle: 'Tu semana en SpaceEase',
+    notificationBody: 'Tres cosas sobre tu espacio, para cuando quieras verlas.',
+    triedLabel: 'Lo que probaste',
+    tried: (n: number) => `Probaste ${n} ${n === 1 ? 'ajuste' : 'ajustes'} en los últimos 7 días.`,
+    triedNone:
+      'Esta semana no hubo pruebas. Puede que hayas descansado o que no lo hayas anotado. Las dos cosas están bien.',
+    helpedLabel: 'Lo que ayudó',
+    helped: (titles: string[]) => `Te ayudó: ${list(titles.map((t) => t.toLowerCase()))}.`,
+    helpedNone: 'Esta semana no hubo algo claro. Eso también es información.',
+    helpedNoTrials: 'Cuando pruebes algo, aquí verás si ayudó.',
+    bestLabel: 'Lo que más te sirve',
+    best: (title: string, helped: number, trials: number) => `${title}: ayudó ${helped} de ${trials} ${times(trials)}.`,
+    bestNone: 'Todavía no hay algo que se repita. Con cada prueba se aclara.',
+    footer: 'Puedes volver cuando quieras.',
+  },
+  desk: {
+    label: (names: string[]) => (names.length ? `Tu escritorio: ${names.join(', ')}.` : 'Tu escritorio, todavía sin objetos.'),
+    newItem: 'Nuevo en tu escritorio',
+    afterTrial: 'Cuando nos cuentes cómo te fue, se suma a tu escritorio, haya ayudado o no.',
+    learned: 'Ya sabes algo más de este espacio.',
+    items: {
+      headphones: 'Audífonos',
+      speaker: 'Bocina de sonido suave',
+      succulent: 'Planta del rincón tranquilo',
+      phone: 'Teléfono en silencio',
+      sign: 'Señal de concentración',
+      blinds: 'Persiana',
+      screenDim: 'Pantalla suave',
+      lamp: 'Lámpara cálida',
+      tray: 'Bandeja ordenada',
+      divider: 'Panel divisor',
+      fan: 'Ventilador',
+      sweater: 'Suéter',
+      mug: 'Taza para una pausa',
+      frame: 'Foto de casa',
+    } as Record<string, string>,
   },
   checkin: {
     title: 'Revisar mi entorno',
@@ -90,12 +148,16 @@ const es = {
     listenStart: 'Empezar a escuchar',
     listening: (seconds: number) => `Escuchando… quedan ${seconds} s`,
     listenStop: 'Detener',
-    listenDenied: 'Sin permiso del micrófono no podemos escuchar. Puedes cambiarlo en Configuración de iOS o seguir sin sonido.',
+    listenDenied: 'Sin permiso del micrófono no podemos escuchar. Puedes intentarlo otra vez o seguir sin sonido.',
+    listenBlocked:
+      'iOS ya no vuelve a preguntar por el micrófono. Puedes activarlo en Configuración → SpaceEase → Micrófono, o seguir sin sonido.',
+    openSettings: 'Abrir Configuración',
     continueWithout: 'Seguir sin esto',
     photoTitle: 'Toma una foto de tu lugar',
     photoHint: 'Apunta a lo que ves mientras trabajas. Si sale alguien, el teléfono lo pixela antes de enviar.',
     takePhoto: 'Tomar foto',
-    photoDenied: 'Sin permiso de la cámara no podemos tomar la foto. Puedes cambiarlo en Configuración de iOS o seguir sin foto.',
+    photoDenied:
+      'Sin permiso de la cámara no podemos tomar la foto. Puedes activarlo en Configuración → SpaceEase → Cámara, o seguir sin foto.',
     previewTitle: 'Así se enviará la foto',
     previewPeople: (n: number) =>
       n === 0 ? 'No encontramos personas en la foto.' : `Se ocultaron ${n} ${n === 1 ? 'persona' : 'personas'}.`,
@@ -145,8 +207,11 @@ const es = {
     in25: 'En 25 minutos',
     in50: 'En 50 minutos',
     myself: 'Yo vuelvo cuando termine',
+    // Lo que se ve con el teléfono bloqueado no dice qué ajuste ni qué molesta.
     notificationTitle: '¿Cómo te fue?',
-    notificationBody: (adjustment: string) => `Cuéntanos cómo te fue con “${adjustment}”.`,
+    notificationBody: 'Cuando quieras, cuéntanos cómo te fue con la prueba.',
+    plan: (task: string, adjustment: string) =>
+      `Tu plan: la próxima vez que toque «${task}» aquí, ${adjustment.toLowerCase()}.`,
     doneTitle: 'Listo',
     doneBody: 'Trabaja a tu ritmo. Cuando termines, cuéntanos cómo te fue desde Hoy.',
   },
@@ -175,6 +240,10 @@ const es = {
     unclearBetterBody: 'Mejoró, pero no más de lo habitual para ti. Si lo vuelves a probar, lo sabremos mejor.',
     comparisonBody:
       'Saber cómo cambia tu día sin ajustes nos ayuda a juzgar mejor los que pruebes después.',
+    recapOfferTitle: '¿Quieres un resumen cada semana?',
+    recapOfferBody: 'Tres cosas sobre tu espacio, el día y a la hora que elijas. Sin sonido.',
+    recapOfferYes: 'Elegir día y hora',
+    recapOfferNo: 'No, gracias',
   },
   playbook: {
     emptyTitle: 'Aquí aparecerá lo que te funcione',
@@ -233,6 +302,26 @@ const es = {
     motionReduced: 'Siempre reducido',
     haptics: 'Vibración al confirmar',
     softContrast: 'Contraste suave',
+    experience: 'Cómo se ve y suena',
+    experienceFooter: 'Con «Reducir movimiento» de iOS todo queda quieto, aunque las animaciones estén activadas.',
+    details: 'Animaciones con detalles',
+    detailsHint: 'Tu escritorio cobra vida y lo que te ayuda se celebra.',
+    sounds: 'Sonidos suaves',
+    soundsHint: 'Tonos cortos y bajos al avanzar y al terminar. Callan con el modo silencio.',
+    volume: 'Volumen',
+    volumeLow: 'Bajo',
+    volumeMedium: 'Medio',
+    testSound: 'Probar sonido',
+    previewHint: 'Toca la escena para ver cómo se mueve.',
+    showDesk: 'Mostrar Tu escritorio en Hoy',
+    showDeskHint: 'Los objetos de lo que te ayudó. Si lo ocultas, no se pierde nada.',
+    recap: 'Resumen semanal',
+    recapFooter: 'Un aviso sin sonido el día y a la hora que elijas, con tres cosas, siempre en el mismo orden.',
+    recapTime: 'Hora',
+    recapOff: 'No, gracias',
+    recapDays: { mon: 'Los lunes', wed: 'Los miércoles', fri: 'Los viernes', sun: 'Los domingos' },
+    recapDenied:
+      'Sin permiso de avisos no podemos mandarlo. Puedes activarlo en Configuración → SpaceEase → Notificaciones.',
     scanSection: 'Foto y sonido',
     scanSectionFooter: 'Puedes cambiar esto cuando quieras. Lo que ya se analizó no se guardó.',
     places: 'Mis lugares',

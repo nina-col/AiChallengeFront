@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { Button } from '@/components/button';
 import { Group, GroupRow } from '@/components/group';
@@ -11,8 +12,10 @@ import { ThemedText } from '@/components/themed-text';
 import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
+import { revealEntering } from '@/lib/animations';
 import { useCheckinDraft } from '@/lib/checkin-draft';
 import { useCheckinSteps } from '@/lib/checkin-steps';
+import { useFeedback, useMotionLevel } from '@/lib/feedback';
 import { audioFindings, type Finding } from '@/lib/scan';
 import type { Response } from '@/lib/types';
 
@@ -21,7 +24,7 @@ const PIN = 30;
 /**
  * Las posibilidades de la foto y del sonido, cada una con Sí / No / No sé. Solo lo que la persona
  * confirma pasa al registro; lo demás no cuenta. Los marcadores repiten la lista, que es la que
- * lee VoiceOver.
+ * lee VoiceOver. Aparecen uno tras otro, en el orden de sus números.
  */
 export default function Findings() {
   const t = useT();
@@ -31,6 +34,14 @@ export default function Findings() {
   const findings = dedupe(draft.findings ?? audioFindings(draft.audioHints ?? [], t.scan.audioQuestions));
   const photoFindings = findings.filter((f) => f.source === 'photo');
   const [responses, setResponses] = useState<Record<string, Response>>({});
+  const level = useMotionLevel();
+  const feedback = useFeedback();
+  const found = findings.length > 0;
+
+  useEffect(() => {
+    if (found) feedback.cue('reveal');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al llegar a la pantalla
+  }, []);
 
   function next() {
     const answers = { ...draft.answers };
@@ -65,8 +76,9 @@ export default function Findings() {
           importantForAccessibility="no-hide-descendants">
           <Image source={{ uri: draft.photo.uri }} style={StyleSheet.absoluteFill} />
           {photoFindings.map((finding, index) => (
-            <View
+            <Animated.View
               key={finding.key}
+              entering={revealEntering(level, index)}
               style={[
                 styles.pin,
                 {
@@ -79,7 +91,7 @@ export default function Findings() {
               <ThemedText type="footnote" style={{ color: theme.onPrimary, fontWeight: '600' }}>
                 {index + 1}
               </ThemedText>
-            </View>
+            </Animated.View>
           ))}
         </View>
       ) : null}

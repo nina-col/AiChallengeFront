@@ -1,36 +1,41 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { StepProgress } from '@/components/step-progress';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type StepScreenProps = {
-  /** "Paso 2 de 8"; se omite en pantallas que no son parte de una secuencia. */
-  step?: string;
+  /** Paso actual y total; se omite en pantallas que no son parte de la secuencia. */
+  step?: { number: number; total: number; label: string };
   title: string;
   hint?: string;
   children?: ReactNode;
-  /** Botones fijos abajo, siempre en el mismo lugar. */
+  /** Botones fijos abajo, siempre visibles y en el mismo lugar. */
   footer?: ReactNode;
 };
 
-/** Una pregunta por pantalla: título, ayuda opcional, contenido y acciones abajo. */
+/**
+ * Una pregunta por pantalla: título, ayuda opcional, contenido y acciones abajo.
+ * Solo el contenido se desplaza; el pie nunca sale de la pantalla, sea cual sea el tamaño del
+ * texto. Los flujos se abren a pantalla completa (ver `app/_layout.tsx`) para que el gesto de
+ * la hoja no arrastre los botones.
+ */
 export function StepScreen({ step, title, hint, children, footer }: StepScreenProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <ScrollView
+        style={styles.scroll}
         contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         contentContainerStyle={styles.content}>
         <View style={styles.heading}>
-          {step ? (
-            <ThemedText type="footnote" themeColor="textSecondary">
-              {step}
-            </ThemedText>
-          ) : null}
+          {step ? <StepProgress number={step.number} total={step.total} label={step.label} /> : null}
           <ThemedText type="title" accessibilityRole="header">
             {title}
           </ThemedText>
@@ -43,11 +48,17 @@ export function StepScreen({ step, title, hint, children, footer }: StepScreenPr
         {children}
       </ScrollView>
       {footer ? (
-        <SafeAreaView
-          edges={['bottom']}
-          style={[styles.footer, { backgroundColor: theme.background, borderTopColor: theme.separator }]}>
-          {footer}
-        </SafeAreaView>
+        <View
+          style={[
+            styles.footer,
+            {
+              paddingBottom: Math.max(insets.bottom, Spacing.three),
+              backgroundColor: theme.background,
+              borderTopColor: theme.separator,
+            },
+          ]}>
+          <View style={styles.footerInner}>{footer}</View>
+        </View>
       ) : null}
     </View>
   );
@@ -55,6 +66,9 @@ export function StepScreen({ step, title, hint, children, footer }: StepScreenPr
 
 const styles = StyleSheet.create({
   screen: {
+    flex: 1,
+  },
+  scroll: {
     flex: 1,
   },
   content: {
@@ -69,9 +83,15 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   footer: {
+    flexShrink: 0,
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.three - Spacing.one,
-    gap: Spacing.two,
     borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  footerInner: {
+    gap: Spacing.two,
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
   },
 });

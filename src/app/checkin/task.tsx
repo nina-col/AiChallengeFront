@@ -22,7 +22,7 @@ export default function Task() {
   const visible = showAll ? tasks : tasks.slice(0, VISIBLE);
 
   return (
-    <StepScreen step={t.checkin.step(steps.number('task'), steps.total)} title={t.checkin.taskTitle}>
+    <StepScreen step={steps.progress('task')} title={t.checkin.taskTitle}>
       <ChoiceList
         options={visible}
         selected={draft.task ? [draft.task] : []}

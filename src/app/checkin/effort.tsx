@@ -11,7 +11,7 @@ export default function Effort() {
   const { draft, update } = useCheckinDraft();
 
   return (
-    <StepScreen step={t.checkin.step(steps.number('effort'), steps.total)} title={t.checkin.effortTitle}>
+    <StepScreen step={steps.progress('effort')} title={t.checkin.effortTitle}>
       <ScaleQuestion
         value={draft.effort}
         onChange={(effort) => {
