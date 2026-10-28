@@ -2,7 +2,11 @@
 
 App iOS distribuida por TestFlight, con Expo Go como plan B. Expo SDK 58, TypeScript y Expo Router (las rutas viven en `src/app/`).
 
-> Este código se sincroniza desde el monorepo de trabajo. No hagas commits directos en el espejo `nina-col/AiChallengeFront`: avisa para integrarlos, o se sobrescriben en el siguiente sync.
+> **Para el equipo:** aquí se puede trabajar. Este repo es el espejo de `apps/mobile` del monorepo de trabajo.
+> - Antes de empezar, `git pull`: los commits `sync monorepo@…` traen lo que cambió en el monorepo.
+> - Haz commits normales en `main` (o una rama con PR), nunca force-push.
+> - Quique los trae al monorepo uno por uno con `scripts/import-team-repos.sh`, con tu nombre como autor. Ahí se revisan (tipos, lint y pruebas) y luego llegan a la app.
+> - El siguiente sync no sobrescribe tu trabajo: se detiene si encuentra commits tuyos que todavía no se importaron.
 
 ## Correr en tu teléfono
 

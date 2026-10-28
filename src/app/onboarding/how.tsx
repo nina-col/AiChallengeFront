@@ -1,10 +1,9 @@
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
-import { ChoiceList } from '@/components/choice-list';
 import { Group, GroupRow } from '@/components/group';
 import { StepScreen } from '@/components/step-screen';
 import { ThemedText } from '@/components/themed-text';
@@ -29,41 +28,85 @@ export default function How() {
           onPress={() => router.push('/onboarding/place')}
         />
       }>
-      <Group>
+      <View style={styles.steps}>
         {t.onboarding.howSteps.map((step, index) => (
-          <GroupRow key={step} first={index === 0}>
-            <View style={styles.step}>
-              <View style={[styles.number, { backgroundColor: theme.backgroundSelected }]}>
-                <ThemedText type="bodyStrong">{index + 1}</ThemedText>
-              </View>
-              <ThemedText style={styles.stepText}>{step}</ThemedText>
+          <View key={step} style={styles.step}>
+            <View style={[styles.number, { backgroundColor: theme.backgroundSelected }]}>
+              <ThemedText type="bodyStrong">{index + 1}</ThemedText>
             </View>
-          </GroupRow>
+            <ThemedText style={styles.stepText}>{step}</ThemedText>
+          </View>
         ))}
-      </Group>
+        <ThemedText type="callout" themeColor="textSecondary">
+          {t.onboarding.scanChoice}
+        </ThemedText>
+      </View>
 
       <Group title={t.onboarding.privacyTitle}>
         <GroupRow first>
           <ThemedText type="callout">{t.onboarding.privacyBody}</ThemedText>
         </GroupRow>
+        <Button
+          variant="plain"
+          title={t.onboarding.readNotice}
+          style={styles.noticeLink}
+          onPress={() => WebBrowser.openBrowserAsync(PRIVACY_URL)}
+        />
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityLabel={t.onboarding.consent}
+          accessibilityState={{ checked: consented }}
+          onPress={() => setConsented((value) => !value)}
+          style={({ pressed }) => [styles.consent, {
+            backgroundColor: consented ? theme.backgroundSelected : theme.backgroundElement,
+            opacity: pressed ? 0.75 : 1,
+            borderTopColor: theme.separator,
+          }]}>
+          <View accessible={false} style={[styles.checkbox, {
+            borderColor: theme.primary,
+            backgroundColor: consented ? theme.primary : theme.backgroundElement,
+          }]}>
+            {consented ? <View style={[styles.checkmark, { borderColor: theme.onPrimary }]} /> : null}
+          </View>
+          <ThemedText style={styles.stepText}>{t.onboarding.consent}</ThemedText>
+        </Pressable>
       </Group>
-
-      <ChoiceList
-        multiple
-        options={[{ id: 'consent', label: t.onboarding.consent }]}
-        selected={consented ? ['consent'] : []}
-        onSelect={() => setConsented((value) => !value)}
-      />
-      <Button
-        variant="plain"
-        title={t.onboarding.readNotice}
-        onPress={() => WebBrowser.openBrowserAsync(PRIVACY_URL)}
-      />
     </StepScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  steps: {
+    gap: Spacing.three,
+  },
+  noticeLink: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing.three,
+  },
+  consent: {
+    minHeight: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    padding: Spacing.three,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  checkmark: {
+    width: 7,
+    height: 12,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    transform: [{ translateY: -2 }, { rotate: '45deg' }],
+  },
   step: {
     flexDirection: 'row',
     alignItems: 'center',

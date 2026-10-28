@@ -27,10 +27,11 @@ const en: Strings = {
     start: 'Get started',
     howTitle: 'How it works',
     howSteps: [
-      "You tell us what task you're doing and how you feel.",
-      'We look at sound, light and what you see, together.',
-      'We suggest one adjustment, and afterwards you tell us if it helped.',
+      'Tell us your task and how you feel.',
+      'Identify what bothers you.',
+      'Try one adjustment, then tell us if it helped.',
     ],
+    scanChoice: 'You choose whether to use a photo or record audio to explore your surroundings.',
     privacyTitle: 'Your information',
     privacyBody:
       "We don't ask for a diagnosis, name or email. Your employer sees nothing. You can delete everything anytime in Settings.",

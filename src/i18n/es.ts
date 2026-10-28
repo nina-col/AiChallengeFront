@@ -32,10 +32,11 @@ const es = {
     start: 'Empezar',
     howTitle: 'Así funciona',
     howSteps: [
-      'Nos cuentas qué tarea haces y cómo te sientes.',
-      'Revisamos juntos el sonido, la luz y lo que ves.',
-      'Te proponemos un solo ajuste y después nos dices si ayudó.',
+      'Cuéntanos tu tarea y cómo te sientes.',
+      'Identifica qué te molesta.',
+      'Prueba un ajuste y cuéntanos si ayudó.',
     ],
+    scanChoice: 'Tú eliges si usas una foto o grabas audio para explorar tu entorno.',
     privacyTitle: 'Tu información',
     privacyBody:
       'No te pedimos diagnóstico, nombre ni correo. Tu empresa no ve nada. Puedes borrar todo cuando quieras desde Ajustes.',
