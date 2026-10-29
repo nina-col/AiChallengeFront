@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
+import { QueryFeedback } from '@/components/query-feedback';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { Notice } from '@/components/notice';
@@ -72,12 +73,13 @@ export default function DomainStep() {
       footer={
         <Button
           title={t.common.next}
-          disabled={choice.length === 0}
+          disabled={choice.length === 0 || !domain}
           loading={submit.isPending}
           onPress={next}
         />
       }>
-      <ChoiceList multiple options={options} selected={choice} onSelect={toggle} />
+      <QueryFeedback query={catalog} />
+      <ChoiceList disabled={submit.isPending} multiple options={options} selected={choice} onSelect={toggle} />
       {submit.isError ? <Notice text={t.common.somethingFailed} action={t.common.retry} onAction={next} /> : null}
     </StepScreen>
   );

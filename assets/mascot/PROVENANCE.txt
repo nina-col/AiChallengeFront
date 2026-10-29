@@ -1,0 +1,29 @@
+SpaceEase beaver mascot
+
+Prepared from the user-provided beaver.png character sheet using the built-in
+Imagegen tool. These PNGs have transparent backgrounds and are bundled locally.
+
+Prompts (shared specification):
+Use case: background-extraction. Input image is edit target. Extract and reproduce
+ONLY the specified pose from the supplied character sheet as ONE standalone app
+mascot asset. Preserve its exact orange fur, cream belly, dark brown outlines,
+flat softly shaded cartoon style, buck teeth, broad beaver tail and character
+identity. Entire character centered, all tail and props visible, modest even
+transparent padding. Actual transparent background. No other characters, no text,
+no watermark, no extra scenery. Output a single square image.
+
+Pose specifications:
+- beaver-welcome.png: the waving beaver at top-left, friendly small smile,
+  standing with one hand raised.
+- beaver-coffee.png: the beaver holding a small cream coffee cup, calm and relaxed.
+- beaver-notebook.png: the beaver holding the purple notebook and pencil,
+  third row fourth column.
+
+Usage:
+- Welcome: greeting, paired with the app's purpose.
+- Today: quiet companion next to the desk; hidden when the desk is hidden.
+- Empty playbook: notebook, paired with guidance on what will appear here.
+All poses remain static and decorative; they never judge an outcome.
+
+Size: downscaled from 1254 px to 528 px (3x the largest use, 176 pt) with Lanczos
+to keep the app light; the art is unchanged.

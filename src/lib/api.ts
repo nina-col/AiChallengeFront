@@ -1,3 +1,4 @@
+import type { RoomLayout } from '@/components/room/types';
 import type { Locale } from '@/i18n';
 import { getDeviceKey } from '@/lib/session';
 import type {
@@ -9,6 +10,7 @@ import type {
   NewCheckin,
   OutcomeResult,
   PhotoScanResult,
+  PlaceMemory,
   PlaybookEntry,
   Progress,
   Response,
@@ -30,13 +32,15 @@ export class ApiError extends Error {
   constructor(
     readonly status: number,
     readonly code?: string,
+    /** El cuerpo de la respuesta de error (por ejemplo, la revisión actual en un 409). */
+    readonly data?: Record<string, unknown> | null,
   ) {
     super(`HTTP ${status}${code ? ` (${code})` : ''}`);
   }
 }
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   auth?: boolean;
   timeoutMs?: number;
@@ -65,7 +69,7 @@ async function request<T>(
     });
     if (!response.ok) {
       const data = await response.json().catch(() => null);
-      throw new ApiError(response.status, data?.error);
+      throw new ApiError(response.status, data?.error, data);
     }
     return (response.status === 204 ? undefined : await response.json()) as T;
   } finally {
@@ -116,6 +120,14 @@ export const api = {
 
   playbook: () => request<PlaybookEntry[]>('/v1/playbook'),
   progress: () => request<Progress>('/v1/progress'),
+  memory: (spaceId: string) => request<PlaceMemory>(`/v1/spaces/${spaceId}/memory`),
+  /** "Este lugar cambió": el motor solo usa las pruebas de aquí desde ahora. No borra nada. */
+  resetSpace: (spaceId: string) => request<void>(`/v1/spaces/${spaceId}/reset`, { method: 'POST' }),
+  /** 404 si el lugar todavía no tiene cuarto (la app arma uno por defecto). */
+  room: (spaceId: string) => request<{ revision: number; layout: unknown }>(`/v1/spaces/${spaceId}/room`),
+  /** `revision`: la que se leyó (0 para crear). 409 si alguien guardó antes; 422 si el layout no es válido. */
+  saveRoom: (spaceId: string, revision: number, layout: RoomLayout) =>
+    request<{ revision: number }>(`/v1/spaces/${spaceId}/room`, { method: 'PUT', body: { revision, layout } }),
 
   /** La IA tarda ~10 s en mirar la foto: este pedido tiene su propio tiempo límite. */
   scanPhoto: (imageBase64: string, task: string, audio: string[]) =>

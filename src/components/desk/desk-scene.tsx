@@ -32,7 +32,8 @@ export const SETTLED_MS = SETTLE_FRAME_MS * (SETTLE.length - 1);
 /** Objetos que se dibujan como capa propia (la persiana va bajo la pared y la pantalla tenue es una paleta). */
 const LAYERED = (Object.keys(ITEMS) as ItemId[]).filter((id) => id !== 'blinds' && id !== 'screenDim');
 
-function skyFor(hour: number): Sky {
+/** El cielo de la ventana según la hora del teléfono (también lo usa el cuarto isométrico). */
+export function skyFor(hour: number): Sky {
   if (hour >= 5 && hour < 9) return 'dawn';
   if (hour >= 9 && hour < 17) return 'day';
   if (hour >= 17 && hour < 20) return 'dusk';

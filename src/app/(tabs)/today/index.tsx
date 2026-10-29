@@ -1,11 +1,13 @@
+import { QueryFeedback } from '@/components/query-feedback';
 import { router } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
+import { BeaverMascot } from '@/components/beaver-mascot';
 import { Button } from '@/components/button';
 import { DeskScene } from '@/components/desk/desk-scene';
 import { Group, GroupRow } from '@/components/group';
-import { Notice } from '@/components/notice';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -13,7 +15,7 @@ import { useT } from '@/i18n';
 import { useDesk } from '@/lib/desk';
 import { useMotionLevel } from '@/lib/feedback';
 import { cancelRecap } from '@/lib/notifications';
-import { keys, queryClient, useLabels, usePlaybook, useTrying } from '@/lib/queries';
+import { keys, queryClient, useLabels, usePlaybook, useSpaces, useTrying } from '@/lib/queries';
 import { useSettings } from '@/lib/settings';
 
 /** Tras 5 semanas sin abrir el resumen, se pregunta una vez si lo sigue queriendo (nunca se insiste). */
@@ -28,9 +30,10 @@ export default function Today() {
   const trying = useTrying();
   const playbook = usePlaybook();
   const desk = useDesk();
+  const spaces = useSpaces();
   const [openedAt] = useState(() => Date.now());
   const lastHelped = playbook.data?.[0];
-  // Si la persona ocultó su progreso, la escena se queda sin objetos (no se borra nada).
+  // The companion belongs to the desk; hiding the desk hides both.
   const items = settings.showDesk ? desk.items : [];
   const askAboutRecap = settings.recapDay !== 'off' && openedAt - settings.recapSeenAt > RECAP_UNSEEN_MS;
 
@@ -51,6 +54,8 @@ export default function Today() {
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={trying.isRefetching} onRefresh={refresh} />}>
+      <QueryFeedback query={trying} />
+      <QueryFeedback query={playbook} />
       {trying.data?.length ? (
         <Group title={t.today.tryingTitle} footer={t.today.tryingFooter}>
           {trying.data.map((checkin, index) => (
@@ -69,12 +74,18 @@ export default function Today() {
         </Group>
       ) : null}
 
-      <View style={styles.desk}>
+      {settings.showDesk ? <View style={styles.desk}>
         <DeskScene
           items={items}
           interactive
           accessibilityLabel={t.desk.label(items.map((item) => t.desk.items[item]))}
         />
+        <View style={styles.companion}>
+          <BeaverMascot pose="coffee" size={72} />
+          <ThemedText type="callout" themeColor="textSecondary" style={styles.companionText}>
+            {t.today.mascotNote}
+          </ThemedText>
+        </View>
         <View style={styles.caption}>
           {settings.showDesk ? (
             <ThemedText type="footnote" themeColor="textSecondary" style={styles.shrink}>
@@ -87,7 +98,7 @@ export default function Today() {
             </ThemedText>
           ) : null}
         </View>
-      </View>
+      </View> : null}
 
       <View style={styles.prompt}>
         <ThemedText type="headline" style={styles.center}>
@@ -99,6 +110,30 @@ export default function Today() {
         <Button title={t.today.start} onPress={() => router.push('/checkin/task')} style={styles.cta} />
         <Button variant="plain" title={t.today.seeWeek} onPress={() => router.push('/recap')} style={styles.cta} />
       </View>
+
+      {/* Cada lugar recuerda lo que se probó ahí, ayudara o no. */}
+      {spaces.data?.length ? (
+        <Group title={t.place.placesTitle}>
+          {spaces.data.map((space, index) => (
+            <GroupRow key={space.id} first={index === 0}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={space.name}
+                accessibilityHint={t.place.open}
+                onPress={() => router.push({ pathname: '/place/[id]', params: { id: space.id } })}
+                style={({ pressed }) => [styles.placeRow, { opacity: pressed ? 0.6 : 1 }]}>
+                <View style={styles.shrink}>
+                  <ThemedText>{space.name}</ThemedText>
+                  <ThemedText type="footnote" themeColor="textSecondary">
+                    {t.place.open}
+                  </ThemedText>
+                </View>
+                <SymbolView name="chevron.right" size={14} tintColor={theme.textSecondary} accessibilityElementsHidden />
+              </Pressable>
+            </GroupRow>
+          ))}
+        </Group>
+      ) : null}
 
       {askAboutRecap ? (
         <Group title={t.today.recapStillTitle}>
@@ -140,7 +175,6 @@ export default function Today() {
         </Group>
       ) : null}
 
-      {trying.isError ? <Notice text={t.common.offline} action={t.common.retry} onAction={refresh} /> : null}
     </ScrollView>
   );
 }
@@ -157,11 +191,24 @@ const styles = StyleSheet.create({
   desk: {
     gap: Spacing.two,
   },
+  companion: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  companionText: { flex: 1 },
   caption: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: Spacing.two,
     paddingHorizontal: Spacing.one,
+  },
+  placeRow: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.three,
   },
   shrink: {
     flexShrink: 1,

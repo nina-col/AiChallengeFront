@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Button } from '@/components/button';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { Notice } from '@/components/notice';
@@ -9,6 +11,7 @@ import { useCheckin } from '@/lib/queries';
 
 export default function CheckoutEffort() {
   const t = useT();
+  const [selected, setSelected] = useState<number>();
   const { id, discomfort } = useLocalSearchParams<{ id: string; discomfort: string }>();
   const checkin = useCheckin(id);
   const save = useSaveOutcome(id);
@@ -24,8 +27,10 @@ export default function CheckoutEffort() {
   }
 
   return (
-    <StepScreen title={t.checkout.effortTitle}>
-      <ScaleQuestion onChange={next} />
+    <StepScreen title={t.checkout.effortTitle}
+      footer={<Button title={t.common.next} disabled={selected === undefined || !checkin.data} loading={save.isPending} onPress={() => selected !== undefined && next(selected)} />}>
+      <ScaleQuestion value={selected} onChange={setSelected} />
+      {checkin.isError ? <Notice text={t.common.offline} action={t.common.retry} onAction={checkin.refetch} /> : null}
       {save.isError ? <Notice text={t.common.somethingFailed} /> : null}
     </StepScreen>
   );

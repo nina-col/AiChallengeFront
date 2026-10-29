@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Button } from '@/components/button';
 import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
 
@@ -13,6 +15,7 @@ import { keys, queryClient } from '@/lib/queries';
 /** La persona decide cuándo le preguntamos: un aviso a 25 o 50 minutos, o ninguno. */
 export default function Reminder() {
   const t = useT();
+  const [selected, setSelected] = useState<string>();
   const { draft } = useCheckinDraft();
   const checkin = draft.result?.checkin;
 
@@ -42,11 +45,13 @@ export default function Reminder() {
   ];
 
   return (
-    <StepScreen title={t.reminder.title} hint={t.reminder.hint}>
+    <StepScreen step={{ number: 2, total: 2, label: t.checkin.choosePhase }} title={t.reminder.title} hint={t.reminder.hint}
+      footer={<Button title={t.proposal.accept} disabled={!selected} loading={accept.isPending} onPress={() => selected && accept.mutate(selected === 'none' ? null : Number(selected))} />}>
       <ChoiceList
         options={options}
-        selected={accept.variables !== undefined ? [accept.variables ? String(accept.variables) : 'none'] : []}
-        onSelect={(id) => !accept.isPending && accept.mutate(id === 'none' ? null : Number(id))}
+        selected={selected ? [selected] : []}
+        disabled={accept.isPending}
+        onSelect={setSelected}
       />
       {accept.isError ? <Notice text={t.common.somethingFailed} /> : null}
     </StepScreen>

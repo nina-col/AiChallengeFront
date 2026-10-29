@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
 
@@ -11,25 +12,36 @@ const FALLBACK_DOMAINS = ['sound', 'light', 'sight', 'body'];
 
 /**
  * Orden de los pasos del registro. La pregunta del lugar solo aparece si hay cero o varios
- * lugares: con uno, se usa ese y la persona se ahorra un paso.
+ * lugares: con uno, se usa ese y la persona se ahorra un paso. "Usarlo otra vez" es más corto:
+ * el lugar y el ajuste ya se saben.
  */
 export function useCheckinSteps() {
   const t = useT();
   const spaces = useSpaces();
   const catalog = useCatalog();
-  const askPlace = (spaces.data?.length ?? 0) !== 1;
+  const { draft, update } = useCheckinDraft();
+  const repeat = draft.repeat;
+  const askPlace = !repeat && (draft.askPlace ?? (spaces.data?.length ?? 0) !== 1);
+  useEffect(() => {
+    if (draft.askPlace === undefined && spaces.isSuccess) update({ askPlace });
+  }, [draft.askPlace, spaces.isSuccess, askPlace, update]);
   const domains = catalog.data?.domains.map((d) => d.id) ?? FALLBACK_DOMAINS;
   // 'scan' (foto y sonido) es opcional; sus pantallas internas no cuentan como pasos.
-  const order = ['task', 'feeling', ...(askPlace ? ['place'] : []), 'discomfort', 'effort', 'scan', ...domains];
+  const order = repeat
+    ? ['task', 'feeling', 'discomfort', 'effort']
+    : ['task', 'feeling', ...(askPlace ? ['place'] : []), 'discomfort', 'effort', 'scan', ...domains];
 
   return {
+    ready: spaces.isSuccess && catalog.isSuccess,
+    spaces,
     total: order.length,
     /** Lo que muestra la barra de progreso de `StepScreen`. */
     progress: (step: string) => {
       const number = order.indexOf(step) + 1;
-      return { number, total: order.length, label: t.checkin.step(number, order.length) };
+      const label = repeat ? t.checkin.repeatStep(number, order.length) : t.checkin.reviewStep(number, order.length);
+      return { number, total: order.length, label };
     },
-    onlySpaceId: askPlace ? undefined : spaces.data?.[0]?.id,
+    onlySpaceId: repeat ? repeat.spaceId : askPlace ? undefined : spaces.data?.[0]?.id,
     /** Avanza al paso que sigue a `step`; `false` si ya no quedan pasos. */
     goAfter: (step: string) => {
       const next = order[order.indexOf(step) + 1];

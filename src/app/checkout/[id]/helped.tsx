@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Button } from '@/components/button';
 import { useLocalSearchParams } from 'expo-router';
 
 import { ChoiceList } from '@/components/choice-list';
@@ -10,6 +12,7 @@ import type { Response } from '@/lib/types';
 /** La opinión de la persona manda: si dice que no ayudó, no cuenta como éxito. */
 export default function CheckoutHelped() {
   const t = useT();
+  const [selected, setSelected] = useState<Response>();
   const { id, discomfort, effort } = useLocalSearchParams<{ id: string; discomfort: string; effort: string }>();
   const save = useSaveOutcome(id);
 
@@ -20,14 +23,13 @@ export default function CheckoutHelped() {
   ];
 
   return (
-    <StepScreen title={t.checkout.helpedTitle}>
+    <StepScreen title={t.checkout.helpedTitle}
+      footer={<Button title={t.common.next} disabled={!selected} loading={save.isPending} onPress={() => selected && save.mutate({ discomfort: Number(discomfort), effort: Number(effort), attribution: selected })} />}>
       <ChoiceList
         options={options}
-        selected={save.variables ? [save.variables.attribution] : []}
-        onSelect={(attribution) =>
-          !save.isPending &&
-          save.mutate({ discomfort: Number(discomfort), effort: Number(effort), attribution: attribution as Response })
-        }
+        selected={selected ? [selected] : []}
+        disabled={save.isPending}
+        onSelect={(value) => setSelected(value as Response)}
       />
       {save.isError ? <Notice text={t.common.somethingFailed} /> : null}
     </StepScreen>

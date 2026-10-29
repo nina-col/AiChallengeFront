@@ -3,8 +3,9 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
+import { QueryFeedback } from '@/components/query-feedback';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { DeskScene } from '@/components/desk/desk-scene';
@@ -224,15 +225,25 @@ export default function SettingsScreen() {
         {toggle('scanPhoto', t.scan.photoConsent, false, !canAnalyzePhoto)}
       </Group>
 
+      <QueryFeedback query={spaces} />
+      {addPlace.isError || removePlace.isError ? <Notice text={t.common.somethingFailed} /> : null}
       <Group title={t.settings.places}>
         {(spaces.data ?? []).map((space, index) => (
           <GroupRow key={space.id} first={index === 0}>
             <View style={styles.switchRow}>
-              <ThemedText style={styles.flex}>{space.name}</ThemedText>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityHint={t.place.open}
+                onPress={() => router.push({ pathname: '/place/[id]', params: { id: space.id } })}
+                style={({ pressed }) => [styles.flex, styles.placeName, { opacity: pressed ? 0.6 : 1 }]}>
+                <ThemedText>{space.name}</ThemedText>
+              </Pressable>
               <Button
                 variant="plain"
                 title={t.settings.removePlace}
                 style={styles.inline}
+                loading={removePlace.isPending && removePlace.variables === space.id}
+                disabled={removePlace.isPending}
                 onPress={() => removePlace.mutate(space.id)}
               />
             </View>
@@ -277,6 +288,7 @@ export default function SettingsScreen() {
         </GroupRow>
       </Group>
 
+      {deleteAll.isError ? <Notice text={t.common.somethingFailed} /> : null}
       <Group title={t.settings.about}>
         <GroupRow first>
           <ThemedText type="callout">
@@ -314,6 +326,10 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
     gap: Spacing.half,
+  },
+  placeName: {
+    minHeight: 44,
+    justifyContent: 'center',
   },
   inline: {
     alignSelf: 'flex-start',

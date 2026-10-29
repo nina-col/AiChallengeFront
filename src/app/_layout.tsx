@@ -70,6 +70,7 @@ function RootNavigator() {
         <Stack.Screen name="request" options={{ presentation: 'fullScreenModal' }} />
         {/* Solo se lee (no tiene botones abajo): basta una hoja que se cierra deslizando. */}
         <Stack.Screen name="recap" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="place" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

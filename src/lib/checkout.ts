@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { deskItems, ITEM_FOR_ADJUSTMENT } from '@/lib/desk';
 import { cancelCheckout } from '@/lib/notifications';
 import { keys, queryClient } from '@/lib/queries';
+import { placeEarnedInRoom, typeForAdjustment } from '@/lib/room';
 import type { OutcomeResult, Response } from '@/lib/types';
 
 export const outcomeKey = (id: string) => ['outcome', id] as const;
@@ -32,6 +33,11 @@ export function useSaveOutcome(id: string) {
       queryClient.invalidateQueries({ queryKey: keys.checkins });
       queryClient.invalidateQueries({ queryKey: keys.playbook });
       queryClient.invalidateQueries({ queryKey: keys.progress });
+      queryClient.invalidateQueries({ queryKey: keys.memories });
+      // Su objeto aparece en el cuarto de ese lugar (haya ayudado o no). Sin esperar: no frena el resultado.
+      const spaceId = result.checkin.space?.id;
+      const type = result.checkin.adjustment ? typeForAdjustment(result.checkin.adjustment.id) : undefined;
+      if (spaceId && type) placeEarnedInRoom(spaceId, type).catch(() => {});
       router.push({ pathname: '/checkout/[id]/result', params: { id } });
     },
   });

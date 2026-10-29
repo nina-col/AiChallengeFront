@@ -56,7 +56,9 @@ export type Reason =
   | { kind: 'exploring' }
   | { kind: 'comparison' }
   | { kind: 'tried_here'; helped: number; trials: number }
-  | { kind: 'tried_elsewhere'; helped: number; trials: number };
+  | { kind: 'tried_elsewhere'; helped: number; trials: number }
+  /** "Usarlo otra vez": la persona lo eligió de lo que sabe de un lugar. */
+  | { kind: 'chosen' };
 
 export type Proposal = { adjustment: Adjustment; reason: Reason; alternatives: number };
 
@@ -70,6 +72,8 @@ export type NewCheckin = {
   discomfort_before: number;
   observations: { stimulus: string; response: Response; source: 'question' | 'photo' | 'audio' }[];
   focus_stimulus: string | null;
+  /** "Usarlo otra vez": propone este ajuste sin pasar por el motor. */
+  adjustment_id?: string;
 };
 
 export type OutcomeResult = { checkin: Checkin; here: { helped: number; trials: number } };
@@ -82,6 +86,24 @@ export type PlaybookEntry = {
   helped: number;
   trials: number;
   last_tried: string | null;
+};
+
+/**
+ * "Lo que sé de este lugar" (`GET /v1/spaces/{id}/memory`). Los números son conteos reales y se
+ * muestran igual ayude o no: probar algo que no sirve aquí también es saber algo.
+ */
+export type PlaceMemory = {
+  space: { id: string; name: string; kind: SpaceKind; reset_at: string | null };
+  /** Pruebas terminadas aquí, sea cual sea el resultado (incluye comparaciones). */
+  trials: number;
+  trials_since_reset: number;
+  /** Ajustes distintos probados aquí: "cosas que sabes". */
+  known: number;
+  /** Lo que suele molestar aquí: veces que se marcó "sí" en registros de este lugar. */
+  stimuli: { stimulus: string; label: string; times: number }[];
+  tried: { adjustment: Adjustment; stimulus: string | null; helped: number; trials: number; last_tried: string | null }[];
+  /** "No puedo hacerlo aquí". */
+  blocked: Adjustment[];
 };
 
 /** Lo que la persona ya sabe de su espacio: cuenta pruebas, no resultados, y solo crece. */

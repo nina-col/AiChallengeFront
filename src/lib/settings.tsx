@@ -21,6 +21,8 @@ export type Settings = {
   haptics: boolean;
   /** "Tu escritorio" en Hoy. Se puede ocultar; ocultarlo no borra nada. */
   showDesk: boolean;
+  /** Cómo se ve cada lugar: su cuarto isométrico o solo la lista (la misma información). */
+  placeView: 'room' | 'list';
   /** Resumen semanal opcional: el día y la hora que elija la persona. */
   recapDay: RecapDay;
   recapHour: RecapHour;
@@ -45,6 +47,7 @@ const DEFAULTS: Settings = {
   soundVolume: 'low',
   haptics: false,
   showDesk: true,
+  placeView: 'room',
   recapDay: 'off',
   recapHour: 9,
   recapSeenAt: 0,

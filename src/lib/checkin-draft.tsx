@@ -5,6 +5,7 @@ import type { CheckinWithProposal, NewCheckin, Response } from '@/lib/types';
 
 /** Respuestas del registro en curso, mientras la persona avanza por los pasos. */
 export type Draft = {
+  askPlace?: boolean;
   task?: string;
   feeling?: string;
   spaceId?: string | null;
@@ -23,6 +24,11 @@ export type Draft = {
   scanFailed?: boolean;
   /** Lo que devolvió la API al registrar y al pedir otra idea. */
   result?: CheckinWithProposal;
+  /**
+   * "Usarlo otra vez" desde "Lo que sé de este lugar": registro corto (tarea, cómo te sientes,
+   * molestia y esfuerzo) que va directo a ese ajuste, sin escaneo ni preguntas por dominio.
+   */
+  repeat?: { adjustmentId: string; stimulus: string | null; spaceId: string };
 };
 
 type DraftContextValue = {
@@ -71,5 +77,6 @@ export function toNewCheckin(draft: Draft, focus: string | null): NewCheckin {
       source: draft.sources[stimulus] ?? 'question',
     })),
     focus_stimulus: focus,
+    ...(draft.repeat ? { adjustment_id: draft.repeat.adjustmentId } : {}),
   };
 }
