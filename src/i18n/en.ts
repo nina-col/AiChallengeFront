@@ -22,6 +22,7 @@ const en: Strings = {
     settings: 'Settings',
   },
   onboarding: {
+    mascotIntro: 'Your space can adapt to you, too.',
     welcomeTitle: 'SpaceEase',
     welcomeBody:
       'Find out what about your space is making work harder, try one adjustment, and keep what works for you.',
@@ -48,6 +49,7 @@ const en: Strings = {
     finish: 'Save and start',
   },
   today: {
+    mascotNote: 'Small changes, at your own pace.',
     promptTitle: 'Is something making work harder?',
     promptBody: "We'll look at your surroundings together and suggest one adjustment to try.",
     start: 'Check my surroundings',

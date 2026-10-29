@@ -4,7 +4,7 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Group, GroupRow } from '@/components/group';
-import { PixelScene } from '@/components/pixel-scene';
+import { BeaverMascot } from '@/components/beaver-mascot';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -42,7 +42,7 @@ export default function Playbook() {
 
       {playbook.isSuccess && groups.size === 0 ? (
         <View style={styles.empty}>
-          <PixelScene size={96} />
+          <BeaverMascot pose="notebook" size={136} />
           <ThemedText type="headline" style={styles.center}>
             {t.playbook.emptyTitle}
           </ThemedText>

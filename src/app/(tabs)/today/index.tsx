@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
+import { BeaverMascot } from '@/components/beaver-mascot';
 import { Button } from '@/components/button';
 import { DeskScene } from '@/components/desk/desk-scene';
 import { Group, GroupRow } from '@/components/group';
@@ -30,7 +31,7 @@ export default function Today() {
   const desk = useDesk();
   const [openedAt] = useState(() => Date.now());
   const lastHelped = playbook.data?.[0];
-  // Si la persona ocultó su progreso, la escena se queda sin objetos (no se borra nada).
+  // The companion belongs to the desk; hiding the desk hides both.
   const items = settings.showDesk ? desk.items : [];
   const askAboutRecap = settings.recapDay !== 'off' && openedAt - settings.recapSeenAt > RECAP_UNSEEN_MS;
 
@@ -77,6 +78,12 @@ export default function Today() {
           interactive
           accessibilityLabel={t.desk.label(items.map((item) => t.desk.items[item]))}
         />
+        <View style={styles.companion}>
+          <BeaverMascot pose="coffee" size={72} />
+          <ThemedText type="callout" themeColor="textSecondary" style={styles.companionText}>
+            {t.today.mascotNote}
+          </ThemedText>
+        </View>
         <View style={styles.caption}>
           {settings.showDesk ? (
             <ThemedText type="footnote" themeColor="textSecondary" style={styles.shrink}>
@@ -158,6 +165,12 @@ const styles = StyleSheet.create({
   desk: {
     gap: Spacing.two,
   },
+  companion: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  companionText: { flex: 1 },
   caption: {
     flexDirection: 'row',
     flexWrap: 'wrap',

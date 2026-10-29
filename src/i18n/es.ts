@@ -27,6 +27,7 @@ const es = {
     settings: 'Ajustes',
   },
   onboarding: {
+    mascotIntro: 'Tu espacio también puede adaptarse a ti.',
     welcomeTitle: 'SpaceEase',
     welcomeBody:
       'Descubre qué del lugar te está costando trabajo, prueba un ajuste y quédate con lo que te funciona.',
@@ -53,6 +54,7 @@ const es = {
     finish: 'Guardar y empezar',
   },
   today: {
+    mascotNote: 'Pequeños cambios, a tu ritmo.',
     promptTitle: '¿Algo te está costando trabajo?',
     promptBody: 'Revisamos juntos tu entorno y te proponemos un solo ajuste para probar.',
     start: 'Revisar mi entorno',
