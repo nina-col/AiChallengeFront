@@ -38,7 +38,7 @@ export default function ProposalScreen() {
   if (!proposal) {
     const nothingClear = !result.checkin.focus_stimulus;
     return (
-      <StepScreen
+      <StepScreen step={{ number: 2, total: 2, label: t.checkin.choosePhase }}
         title={nothingClear ? t.proposal.noneTitle : t.proposal.exhaustedTitle}
         hint={nothingClear ? t.proposal.noneBody : t.proposal.exhaustedBody}
         footer={<Button title={t.common.backToToday} onPress={() => router.dismissTo('/today')} />}
@@ -72,10 +72,11 @@ export default function ProposalScreen() {
   const footer = (
     <>
       {adjustment.kind === 'ask' ? (
-        <Button title={t.proposal.prepareRequest} onPress={prepareRequest} />
+        <Button title={t.proposal.prepareRequest} disabled={decline.isPending} onPress={prepareRequest} />
       ) : (
         <Button
           title={adjustment.kind === 'baseline' ? t.proposal.baselineAccept : t.proposal.accept}
+          disabled={decline.isPending}
           onPress={() => router.push('/checkin/reminder')}
         />
       )}
@@ -83,6 +84,7 @@ export default function ProposalScreen() {
         variant="secondary"
         title={adjustment.kind === 'baseline' ? t.proposal.baselineDecline : t.proposal.otherIdea}
         loading={decline.isPending && decline.variables === 'other_idea'}
+        disabled={decline.isPending}
         onPress={() => decline.mutate('other_idea')}
       />
       {adjustment.kind === 'self' ? (
@@ -90,6 +92,7 @@ export default function ProposalScreen() {
           variant="plain"
           title={t.proposal.cannotHere}
           loading={decline.isPending && decline.variables === 'cannot_here'}
+          disabled={decline.isPending}
           onPress={() => decline.mutate('cannot_here')}
         />
       ) : null}
@@ -97,7 +100,7 @@ export default function ProposalScreen() {
   );
 
   return (
-    <StepScreen title={adjustment.title} footer={footer}>
+    <StepScreen step={{ number: 2, total: 2, label: t.checkin.choosePhase }} title={adjustment.title} footer={footer}>
       {/* Fundido breve al cambiar de sugerencia: muestra que es otra idea. Sin movimiento si se pidió. */}
       <Animated.View
         key={adjustment.id}

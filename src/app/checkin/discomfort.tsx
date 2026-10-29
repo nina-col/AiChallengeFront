@@ -1,3 +1,4 @@
+import { Button } from '@/components/button';
 import { ScaleQuestion } from '@/components/scale-question';
 import { StepScreen } from '@/components/step-screen';
 import { useT } from '@/i18n';
@@ -14,12 +15,12 @@ export default function Discomfort() {
     <StepScreen
       step={steps.progress('discomfort')}
       title={t.checkin.discomfortTitle}
-      hint={t.checkin.scaleHint}>
+      hint={t.checkin.scaleHint}
+      footer={<Button title={t.common.next} disabled={draft.discomfort === undefined} onPress={() => steps.goAfter('discomfort')} />}>
       <ScaleQuestion
         value={draft.discomfort}
         onChange={(discomfort) => {
           update({ discomfort });
-          steps.goAfter('discomfort');
         }}
       />
     </StepScreen>

@@ -16,6 +16,7 @@ type ChoiceListProps = {
   onSelect: (id: string) => void;
   /** Varias opciones a la vez (casillas) o una sola (radio). */
   multiple?: boolean;
+  disabled?: boolean;
 };
 
 /**
@@ -23,7 +24,7 @@ type ChoiceListProps = {
  * Lo elegido se nota por el fondo y por un ícono: nunca solo por el color. Elegir no suena ni
  * vibra (es lo más frecuente de la app); con detalles, la palomita aparece con un fundido corto.
  */
-export function ChoiceList({ options, selected, onSelect, multiple = false }: ChoiceListProps) {
+export function ChoiceList({ options, selected, onSelect, multiple = false, disabled = false }: ChoiceListProps) {
   const theme = useTheme();
   const level = useMotionLevel();
 
@@ -37,13 +38,15 @@ export function ChoiceList({ options, selected, onSelect, multiple = false }: Ch
         const icon = multiple ? (isSelected ? 'checkmark.circle.fill' : 'circle') : 'checkmark';
         return (
           <Pressable
+            disabled={disabled}
             key={option.id}
             onPress={() => onSelect(option.id)}
             accessibilityRole={multiple ? 'checkbox' : 'radio'}
-            accessibilityState={multiple ? { checked: isSelected } : { selected: isSelected }}
+            accessibilityState={{ checked: isSelected, disabled }}
             accessibilityHint={option.hint}
             style={({ pressed }) => [
               styles.row,
+              disabled && { opacity: 0.45 },
               index > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.separator },
               (isSelected || pressed) && { backgroundColor: theme.backgroundSelected },
             ]}>

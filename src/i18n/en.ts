@@ -7,6 +7,7 @@ const list = (items: string[]) =>
 
 const en: Strings = {
   common: {
+    loading: 'Loading…',
     next: 'Next',
     close: 'Close',
     retry: 'Try again',
@@ -109,6 +110,8 @@ const en: Strings = {
     },
   },
   checkin: {
+    reviewStep: (n: number, total: number) => `Review surroundings · ${n}/${total}`,
+    choosePhase: 'Choose an adjustment',
     title: 'Check my surroundings',
     step: (n: number, total: number) => `Step ${n} of ${total}`,
     taskTitle: 'What are you doing?',
@@ -250,6 +253,7 @@ const en: Strings = {
     anyPlace: 'No place',
   },
   request: {
+    restoreDraft: 'Restore my edited text',
     title: 'Adjustment request',
     hint: "Review it and change anything you like. It doesn't mention any diagnosis. You decide whether to send it and to whom.",
     includeData: "Include what I've recorded",

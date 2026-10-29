@@ -74,6 +74,7 @@ export default function Request() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [includeData, locale, main?.id, catalog.data],
   );
+  const [savedDraft, setSavedDraft] = useState<string | null>(null);
   const [edited, setEdited] = useState<string | null>(null);
   const text = edited ?? generated;
 
@@ -88,11 +89,13 @@ export default function Request() {
           options={[{ id: 'data', label: t.request.includeData }]}
           selected={includeData ? ['data'] : []}
           onSelect={() => {
+            if (edited !== null) setSavedDraft(edited);
             setEdited(null);
             setIncludeData((value) => !value);
           }}
         />
       ) : null}
+      {savedDraft !== null ? <Button variant="secondary" title={t.request.restoreDraft} onPress={() => { setEdited(savedDraft); setSavedDraft(null); }} /> : null}
       <TextField
         label={t.request.title}
         multiline

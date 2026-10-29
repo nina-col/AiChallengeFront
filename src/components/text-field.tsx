@@ -1,5 +1,6 @@
-import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
+import { View, StyleSheet, TextInput, type TextInputProps } from 'react-native';
 
+import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -7,6 +8,8 @@ import { useTheme } from '@/hooks/use-theme';
 export function TextField({ label, style, ...rest }: TextInputProps & { label: string }) {
   const theme = useTheme();
   return (
+    <View style={{ gap: Spacing.two }}>
+      <ThemedText type="callout">{label}</ThemedText>
     <TextInput
       accessibilityLabel={label}
       placeholderTextColor={theme.textSecondary}
@@ -17,6 +20,7 @@ export function TextField({ label, style, ...rest }: TextInputProps & { label: s
       ]}
       {...rest}
     />
+    </View>
   );
 }
 

@@ -11,6 +11,7 @@ const list = (items: string[]) =>
 
 const es = {
   common: {
+    loading: 'Cargando…',
     next: 'Siguiente',
     close: 'Cerrar',
     retry: 'Intentar de nuevo',
@@ -115,6 +116,8 @@ const es = {
     } as Record<string, string>,
   },
   checkin: {
+    reviewStep: (n: number, total: number) => `Revisar entorno · ${n}/${total}`,
+    choosePhase: 'Elegir ajuste',
     title: 'Revisar mi entorno',
     step: (n: number, total: number) => `Paso ${n} de ${total}`,
     taskTitle: '¿Qué estás haciendo?',
@@ -259,6 +262,7 @@ const es = {
     anyPlace: 'Sin lugar',
   },
   request: {
+    restoreDraft: 'Recuperar mi texto editado',
     title: 'Solicitud de ajuste',
     hint: 'Revisa y cambia lo que quieras. No incluye ningún diagnóstico. Tú decides si la envías y a quién.',
     includeData: 'Incluir lo que he registrado',

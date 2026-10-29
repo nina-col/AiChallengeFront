@@ -1,3 +1,4 @@
+import { QueryFeedback } from '@/components/query-feedback';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -5,7 +6,6 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Button } from '@/components/button';
 import { DeskScene } from '@/components/desk/desk-scene';
 import { Group, GroupRow } from '@/components/group';
-import { Notice } from '@/components/notice';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -51,6 +51,8 @@ export default function Today() {
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={trying.isRefetching} onRefresh={refresh} />}>
+      <QueryFeedback query={trying} />
+      <QueryFeedback query={playbook} />
       {trying.data?.length ? (
         <Group title={t.today.tryingTitle} footer={t.today.tryingFooter}>
           {trying.data.map((checkin, index) => (
@@ -69,7 +71,7 @@ export default function Today() {
         </Group>
       ) : null}
 
-      <View style={styles.desk}>
+      {settings.showDesk ? <View style={styles.desk}>
         <DeskScene
           items={items}
           interactive
@@ -87,7 +89,7 @@ export default function Today() {
             </ThemedText>
           ) : null}
         </View>
-      </View>
+      </View> : null}
 
       <View style={styles.prompt}>
         <ThemedText type="headline" style={styles.center}>
@@ -140,7 +142,6 @@ export default function Today() {
         </Group>
       ) : null}
 
-      {trying.isError ? <Notice text={t.common.offline} action={t.common.retry} onAction={refresh} /> : null}
     </ScrollView>
   );
 }

@@ -1,9 +1,9 @@
+import { QueryFeedback } from '@/components/query-feedback';
 import { router } from 'expo-router';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Group, GroupRow } from '@/components/group';
-import { Notice } from '@/components/notice';
 import { PixelScene } from '@/components/pixel-scene';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -38,9 +38,7 @@ export default function Playbook() {
           }}
         />
       }>
-      {playbook.isError ? (
-        <Notice text={t.common.offline} action={t.common.retry} onAction={playbook.refetch} />
-      ) : null}
+      <QueryFeedback query={playbook} />
 
       {playbook.isSuccess && groups.size === 0 ? (
         <View style={styles.empty}>

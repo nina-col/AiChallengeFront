@@ -1,3 +1,4 @@
+import { QueryFeedback } from '@/components/query-feedback';
 import { useState } from 'react';
 
 import { Button } from '@/components/button';
@@ -22,13 +23,14 @@ export default function Task() {
   const visible = showAll ? tasks : tasks.slice(0, VISIBLE);
 
   return (
-    <StepScreen step={steps.progress('task')} title={t.checkin.taskTitle}>
+    <StepScreen step={steps.progress('task')} title={t.checkin.taskTitle}
+      footer={<Button title={t.common.next} disabled={!draft.task} onPress={() => steps.goAfter('task')} />}>
+      <QueryFeedback query={catalog} />
       <ChoiceList
         options={visible}
         selected={draft.task ? [draft.task] : []}
         onSelect={(task) => {
           update({ task });
-          steps.goAfter('task');
         }}
       />
       {!showAll && tasks.length > VISIBLE ? (
