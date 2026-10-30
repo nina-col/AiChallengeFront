@@ -11,6 +11,7 @@ import { ChoiceList } from '@/components/choice-list';
 import { DeskScene } from '@/components/desk/desk-scene';
 import { Group, GroupRow } from '@/components/group';
 import { Notice } from '@/components/notice';
+import { RoomView } from '@/components/room/room-view';
 import { SegmentedChoice } from '@/components/segmented-choice';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
@@ -19,9 +20,11 @@ import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { api, PRIVACY_URL } from '@/lib/api';
 import { useDesk } from '@/lib/desk';
+import { useMotionLevel } from '@/lib/feedback';
 import { cancelAllReminders, cancelRecap, scheduleRecap } from '@/lib/notifications';
 import { canAnalyzePhoto } from '@/lib/scan';
 import { keys, queryClient, useHealth, useSpaces } from '@/lib/queries';
+import { useCurrentPlace, usePlaceRoom } from '@/lib/room';
 import { forgetDeviceKey } from '@/lib/session';
 import { RECAP_HOURS, RECAP_WEEKDAY, useSettings, type RecapDay, type RecapHour, type Settings } from '@/lib/settings';
 import { playSound, preloadSounds, VOLUME } from '@/lib/sounds';
@@ -33,6 +36,9 @@ export default function SettingsScreen() {
   const spaces = useSpaces();
   const health = useHealth();
   const desk = useDesk();
+  const level = useMotionLevel();
+  // La vista previa es el cuarto del lugar de ahora (o la escena 2D, si no hay lugar).
+  const preview = usePlaceRoom(useCurrentPlace());
   const [newPlace, setNewPlace] = useState('');
   const [recapDenied, setRecapDenied] = useState(false);
 
@@ -126,6 +132,11 @@ export default function SettingsScreen() {
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled">
+      <Group title={t.appearance.title} footer={t.appearance.entryHint}>
+        <GroupRow first>
+          <Button title={t.appearance.open} variant="secondary" onPress={() => router.push('/appearance')} />
+        </GroupRow>
+      </Group>
       <View style={styles.block}>
         <ThemedText type="footnote" themeColor="textSecondary" style={styles.label}>
           {t.settings.language}
@@ -141,19 +152,30 @@ export default function SettingsScreen() {
         />
       </View>
 
-      <View style={styles.block}>
+      {!settings.focusMode ? <View style={styles.block}>
         <ThemedText type="footnote" themeColor="textSecondary" accessibilityRole="header" style={styles.label}>
           {t.settings.experience}
         </ThemedText>
-        <DeskScene
-          items={desk.items}
-          interactive
-          accessibilityLabel={t.desk.label(desk.items.map((item) => t.desk.items[item]))}
-        />
+        {preview.scene === 'room' && preview.layout ? (
+          // Se vuelve a armar al cambiar el nivel de movimiento: así se ve cómo llega en cada uno.
+          <RoomView
+            key={level}
+            layout={preview.layout}
+            modifiers={preview.modifiers}
+            intro
+            accessibilityLabel={preview.label}
+          />
+        ) : preview.scene === 'desk' ? (
+          <DeskScene
+            items={desk.items}
+            interactive
+            accessibilityLabel={t.desk.label(desk.items.map((item) => t.desk.items[item]))}
+          />
+        ) : null}
         <ThemedText type="footnote" themeColor="textSecondary" style={styles.label} importantForAccessibility="no">
           {t.settings.previewHint}
         </ThemedText>
-      </View>
+      </View> : null}
 
       <View style={styles.block}>
         <ThemedText type="footnote" themeColor="textSecondary" style={styles.label}>
@@ -190,8 +212,6 @@ export default function SettingsScreen() {
           </GroupRow>
         ) : null}
         {toggle('haptics', t.settings.haptics)}
-        {toggle('softContrast', t.settings.softContrast)}
-        {toggle('showDesk', t.settings.showDesk, false, false, t.settings.showDeskHint)}
       </Group>
 
       <View style={styles.block}>

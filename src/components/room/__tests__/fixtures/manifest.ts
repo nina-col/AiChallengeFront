@@ -87,6 +87,26 @@ const tile: Sprite = {
   inside: (sx, sy) => Math.abs(sx) / 16 + Math.abs(sy - 8) / 8 <= 1,
 };
 
+/** Rombo del piso de `fw × fd` celdas con el ancla en su esquina trasera (casillas y sombras). */
+function floorPatch(fw: number, fd: number): Sprite {
+  return {
+    w: (fw + fd) * 16,
+    h: (fw + fd) * 8,
+    anchor: [fd * 16, 0],
+    inside: (sx, sy) => {
+      const fx = (sx / 16 + sy / 8) / 2;
+      const fy = (sy / 8 - sx / 16) / 2;
+      return fx >= 0 && fy >= 0 && fx <= fw && fy <= fd;
+    },
+  };
+}
+
+/** Lo que usa la edición (`overlay.ts`). Va al final para no mover los cuadros de antes. */
+const editing: [string, Sprite][] = [
+  ...['valid', 'blocked', 'target'].map((kind): [string, Sprite] => [`cell.${kind}`, floorPatch(1, 1)]),
+  ...([[1, 1], [2, 1], [1, 2], [2, 2]] as const).map(([w, d]): [string, Sprite] => [`shadow.${w}x${d}`, floorPatch(w, d)]),
+];
+
 const sprites: [string, Sprite][] = [
   ...catalog.shell.floors.map((v): [string, Sprite] => [`floor.${v}`, tile]),
   ...catalog.shell.walls.flatMap((v) =>
@@ -98,6 +118,7 @@ const sprites: [string, Sprite][] = [
   ...SKIES.flatMap((sky) => WALLS.map((wall): [string, Sprite] => [`sky.${sky}.${wall}`, wallSprite(wall, 1, 2)])),
   ...WALLS.map((wall): [string, Sprite] => [`blinds.${wall}`, wallSprite(wall, 1, 2)]),
   ...Object.entries(catalog.types).flatMap(([type, spec]) => spritesFor(type, spec)),
+  ...editing,
 ];
 
 /** Empaque por estantes de 512 px con 1 px de separación (como el generador). */

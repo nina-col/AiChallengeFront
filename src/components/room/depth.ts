@@ -6,9 +6,9 @@ import type { DrawItem, Facing, Manifest, RoomItem, RoomLayout, Sky, TypeSpec, W
  * `(layout, manifest)` → `DrawList` ya ordenada (tecnica.md §4 y §6.4): la única fuente de verdad
  * que usan Skia, la capa de accesibilidad, el *hit test* y las pruebas de imagen.
  *
- * Orden: baldosas del piso, alfombras, cielo (detrás del hueco), tramos de pared con el de la
- * ventana, persiana (si la tiene), objetos de pared y, al final, objetos de piso en orden
- * topológico, cada anfitrión seguido de lo que tiene encima.
+ * Orden: baldosas del piso, alfombras, casillas y sombras (`under`), cielo (detrás del hueco),
+ * tramos de pared con el de la ventana, persiana (si la tiene), objetos de pared y, al final,
+ * objetos de piso en orden topológico, cada anfitrión seguido de lo que tiene encima.
  *
  * Puntos de apoyo (deben coincidir con las anclas del generador):
  * - piso: esquina trasera de la huella `(x, y)` a `z = 0`;
@@ -29,6 +29,11 @@ export type DrawOptions = {
   owned: { blinds: boolean; dim: boolean };
   /** Cuadro de animación de reposo por objeto (`{ steam, 1 }` → `taza.x.r0:steam1`). */
   anim?: Record<string, { name: string; frame: number }>;
+  /**
+   * Casillas de la edición y sombras (`overlay.ts`), ya en px de arte del lienzo: van sobre las
+   * baldosas y las alfombras, y debajo de las paredes y de todos los objetos.
+   */
+  under?: readonly DrawItem[];
 };
 
 /** Caja de un objeto de piso: huella `[x0, x1) × [y0, y1)` y caja en pantalla `[l, r) × [t, b)`. */
@@ -160,6 +165,9 @@ export function buildDrawList(layout: RoomLayout, manifest: Manifest, options: D
     const p = floorPoint(items[i]);
     put(at(objectFrameName(manifest, items[i], floorFacing(items[i]), options), p.ax, p.ay, items[i].uid));
   }
+
+  // Casillas y sombras: en el piso, debajo de paredes y objetos.
+  if (options.under) out.push(...options.under);
 
   // 3. Cielo detrás del hueco, tramos de pared (el de la ventana con hueco) y persiana encima.
   const win = layout.shell.window;

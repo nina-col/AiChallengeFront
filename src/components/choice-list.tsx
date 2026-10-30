@@ -1,14 +1,15 @@
 import { SymbolView } from 'expo-symbols';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { LayoutAnimationConfig } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { checkEntering } from '@/lib/animations';
+import { useSettings } from '@/lib/settings';
 import { useMotionLevel } from '@/lib/feedback';
 
-export type Option = { id: string; label: string; hint?: string };
+export type Option = { id: string; label: string; hint?: string; emoji?: string };
 
 type ChoiceListProps = {
   options: Option[];
@@ -27,6 +28,7 @@ type ChoiceListProps = {
 export function ChoiceList({ options, selected, onSelect, multiple = false, disabled = false }: ChoiceListProps) {
   const theme = useTheme();
   const level = useMotionLevel();
+  const { settings } = useSettings();
 
   return (
     <LayoutAnimationConfig skipEntering>
@@ -43,13 +45,18 @@ export function ChoiceList({ options, selected, onSelect, multiple = false, disa
             onPress={() => onSelect(option.id)}
             accessibilityRole={multiple ? 'checkbox' : 'radio'}
             accessibilityState={{ checked: isSelected, disabled }}
+            aria-checked={isSelected}
+            aria-disabled={disabled}
+            accessibilityLabel={option.label}
             accessibilityHint={option.hint}
             style={({ pressed }) => [
               styles.row,
+              settings.readingSpacing === 'wide' && { paddingVertical: Spacing.four, gap: Spacing.four },
               disabled && { opacity: 0.45 },
               index > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.separator },
               (isSelected || pressed) && { backgroundColor: theme.backgroundSelected },
             ]}>
+            {option.emoji ? <ThemedText accessible={false} accessibilityElementsHidden importantForAccessibility="no" aria-hidden>{option.emoji}</ThemedText> : null}
             <View style={styles.text}>
               <ThemedText>{option.label}</ThemedText>
               {option.hint ? (
@@ -60,13 +67,15 @@ export function ChoiceList({ options, selected, onSelect, multiple = false, disa
             </View>
             {multiple || isSelected ? (
               <Animated.View key={isSelected ? 'on' : 'off'} entering={isSelected ? checkEntering(level) : undefined}>
-                <SymbolView
+                {Platform.OS === 'web' ? (
+                  <ThemedText type="bodyStrong" accessible={false} aria-hidden style={{ color: theme.primary }}>{isSelected ? '✓' : '○'}</ThemedText>
+                ) : <SymbolView
                   name={icon}
                   size={22}
                   tintColor={isSelected ? theme.primary : theme.textSecondary}
                   accessibilityElementsHidden
                   importantForAccessibility="no"
-                />
+                />}
               </Animated.View>
             ) : null}
           </Pressable>

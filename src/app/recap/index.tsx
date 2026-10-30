@@ -5,6 +5,7 @@ import Animated from 'react-native-reanimated';
 import { DeskScene } from '@/components/desk/desk-scene';
 import { Group, GroupRow } from '@/components/group';
 import { Notice } from '@/components/notice';
+import { RoomView } from '@/components/room/room-view';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -13,6 +14,7 @@ import { stepEntering } from '@/lib/animations';
 import { useDesk } from '@/lib/desk';
 import { useMotionLevel } from '@/lib/feedback';
 import { useDone, usePlaybook } from '@/lib/queries';
+import { useCurrentPlace, usePlaceRoom } from '@/lib/room';
 import { useSettings } from '@/lib/settings';
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -20,7 +22,7 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 /**
  * El resumen de la semana: tres partes, siempre en el mismo orden y sin sorpresas. Lo que se
  * repite cada semana es el hábito; nada se desbloquea ni se pierde. Si no hubo pruebas, se dice
- * sin culpa.
+ * sin culpa. Arriba, el cuarto del lugar de ahora (o la escena 2D, si no hay lugar).
  */
 export default function Recap() {
   const t = useT();
@@ -29,6 +31,7 @@ export default function Recap() {
   const done = useDone();
   const playbook = usePlaybook();
   const desk = useDesk();
+  const room = usePlaceRoom(useCurrentPlace());
   const [since] = useState(() => Date.now() - WEEK_MS);
   const { update } = useSettings();
 
@@ -64,7 +67,11 @@ export default function Recap() {
       contentInsetAdjustmentBehavior="automatic"
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={styles.content}>
-      <DeskScene items={items} accessibilityLabel={t.desk.label(items.map((item) => t.desk.items[item]))} />
+      {room.scene === 'room' && room.layout ? (
+        <RoomView layout={room.layout} modifiers={room.modifiers} settle accessibilityLabel={room.label} />
+      ) : room.scene === 'desk' ? (
+        <DeskScene items={items} accessibilityLabel={t.desk.label(items.map((item) => t.desk.items[item]))} />
+      ) : null}
       <ThemedText type="callout" themeColor="textSecondary">
         {t.recap.hint}
       </ThemedText>

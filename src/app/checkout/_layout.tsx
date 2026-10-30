@@ -1,3 +1,4 @@
+import { useTypography } from '@/hooks/use-typography';
 import { Stack } from 'expo-router';
 
 import { CloseButton } from '@/components/close-button';
@@ -8,6 +9,7 @@ import { useReducedMotion } from '@/lib/feedback';
 export default function CheckoutLayout() {
   const t = useT();
   const theme = useTheme();
+  const headline = useTypography('headline');
   const reducedMotion = useReducedMotion();
   return (
     <Stack
@@ -16,7 +18,7 @@ export default function CheckoutLayout() {
         headerShadowVisible: false,
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.primary,
-        headerTitleStyle: { color: theme.text },
+        headerTitleStyle: { color: theme.text, fontFamily: headline.fontFamily, fontSize: headline.fontSize },
         headerBackButtonDisplayMode: 'minimal',
         animation: reducedMotion ? 'fade' : 'default',
         headerRight: () => <CloseButton />,

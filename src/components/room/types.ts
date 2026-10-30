@@ -73,7 +73,12 @@ export type Frame = {
 };
 
 /**
- * Nombres de cuadro en `FRAMES`:
+ * Nombres de cuadro en `FRAMES` (además de los de abajo, la edición usa):
+ * - casillas del piso: `cell.valid` (destino posible, contorno punteado), `cell.blocked` (no se
+ *   puede: trama, no solo color) y `cell.target` (la casilla donde caería lo que se arrastra), con
+ *   el ancla en la esquina trasera de la baldosa, como `floor.*`;
+ * - sombras de un objeto levantado: `shadow.${w}x${d}` según su huella ya girada (1x1, 2x1, 1x2,
+ *   2x2), con el ancla en la esquina trasera de la huella a `z = 0`.
  * - objetos: `${type}.${variant}.r${facing}` y, si anima, `${type}.${variant}.r${facing}:${anim}${n}`;
  * - piso: `floor.${variant}` (una baldosa);
  * - pared: `wall.${variant}.${wall}` (un tramo de una celda de largo) y `window.${variant}.${wall}`
@@ -146,4 +151,6 @@ export type DrawItem = {
   y: number;
   /** Objeto del layout al que pertenece (para tocarlo); ausente en piso, paredes y cielo. */
   uid?: string;
+  /** Opacidad del sprite (0–1) para fundidos; sin valor = 1. */
+  alpha?: number;
 };

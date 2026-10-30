@@ -40,7 +40,8 @@ export default function Place() {
   const data = memory.data;
   const blocked = new Set((data?.blocked ?? []).map((a) => a.id));
   const pinned = room.layout?.pinned ?? [];
-  const showRoom = settings.placeView === 'room' && !!room.layout && !room.needsUpdate;
+  // En modo concentración no hay escenas: solo el texto, que dice lo mismo.
+  const showRoom = settings.placeView === 'room' && !settings.focusMode && !!room.layout && !room.needsUpdate;
   const typeLabel = (type: string) => MANIFEST.types[type]?.label[locale] ?? type;
 
   // Lo que se sabe del objeto elegido: sus ajustes probados aquí, con números reales.
@@ -93,15 +94,17 @@ export default function Place() {
             </ThemedText>
           </View>
 
-          <SegmentedChoice
-            label={t.room.viewLabel}
-            options={[
-              { id: 'room', label: t.room.viewRoom },
-              { id: 'list', label: t.room.viewList },
-            ]}
-            selected={settings.placeView}
-            onSelect={(view) => update({ placeView: view as 'room' | 'list' })}
-          />
+          {settings.focusMode ? null : (
+            <SegmentedChoice
+              label={t.room.viewLabel}
+              options={[
+                { id: 'room', label: t.room.viewRoom },
+                { id: 'list', label: t.room.viewList },
+              ]}
+              selected={settings.placeView}
+              onSelect={(view) => update({ placeView: view as 'room' | 'list' })}
+            />
+          )}
 
           {showRoom && room.layout ? (
             <View style={styles.room}>
@@ -235,7 +238,7 @@ export default function Place() {
               />
             </GroupRow>
           </Group>
-          {reset.isError ? <Notice text={t.common.somethingFailed} /> : null}
+          {reset.isError || saveRoom.isError ? <Notice text={t.common.somethingFailed} /> : null}
         </>
       ) : null}
     </ScrollView>

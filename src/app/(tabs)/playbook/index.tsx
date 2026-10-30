@@ -49,7 +49,7 @@ export default function Playbook() {
           <ThemedText themeColor="textSecondary" style={styles.center}>
             {t.playbook.emptyBody}
           </ThemedText>
-          <Button title={t.today.start} onPress={() => router.push('/checkin/task')} style={styles.cta} />
+          <Button title={t.pathway.startLabel} onPress={() => router.push('/checkin')} style={styles.cta} />
         </View>
       ) : null}
 

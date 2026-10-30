@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { AccessibilityInfo, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Alert, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Group, GroupRow } from '@/components/group';
@@ -10,8 +10,8 @@ import { DIM_VARIANT } from '@/components/room/depth';
 import { MANIFEST } from '@/components/room/manifest';
 import { addItem, move, moveTo, rotate, store, type Dir, type Reason } from '@/components/room/occupancy';
 import { autoPlaceWithHost } from '@/components/room/layout';
-import { RoomView } from '@/components/room/room-view';
-import type { RoomLayout } from '@/components/room/types';
+import { RoomView, type DropProblem } from '@/components/room/room-view';
+import type { RoomItem, RoomLayout } from '@/components/room/types';
 import { SegmentedChoice } from '@/components/segmented-choice';
 import { StepScreen } from '@/components/step-screen';
 import { ThemedText } from '@/components/themed-text';
@@ -44,10 +44,15 @@ function wallDirs(wall: 'left' | 'right'): { dir: Dir; arrow: string }[] {
   return [...along, { dir: 'up', arrow: '↑' }, { dir: 'down', arrow: '↓' }];
 }
 
+/** Las flechas de un objeto según dónde está (las mismas en pantalla y en VoiceOver). */
+const dirsFor = (item: RoomItem) => (item.place.on === 'wall' ? wallDirs(item.place.wall) : FLOOR_DIRS);
+
 /**
  * Decorar un cuarto. Todo se puede hacer sin arrastrar (WCAG 2.5.7): se elige un objeto tocándolo,
- * y se mueve con los botones o tocando la casilla destino. La app nunca acomoda nada por su cuenta:
- * solo lo que la persona hace aquí, y se guarda al tocar "Guardar cambios".
+ * y se mueve con los botones o tocando la casilla destino; arrastrarlo es solo un atajo. Con
+ * VoiceOver, cada fila de "En el cuarto" trae las mismas acciones (mover, girar, guardar). La app
+ * nunca acomoda nada por su cuenta: solo lo que la persona hace aquí, y se guarda al tocar
+ * "Guardar cambios".
  */
 export default function EditRoom() {
   const t = useT();
@@ -59,7 +64,7 @@ export default function EditRoom() {
   const [history, setHistory] = useState<RoomLayout[]>([]);
   const [draft, setDraft] = useState<RoomLayout | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
-  const [problem, setProblem] = useState<Reason | 'full' | null>(null);
+  const [problem, setProblem] = useState<DropProblem | 'full' | null>(null);
 
   const layout = draft ?? room.layout;
   const label = (type: string) => MANIFEST.types[type]?.label[locale] ?? type;
@@ -100,11 +105,32 @@ export default function EditRoom() {
     setSelected(added.uid);
   }
 
-  function putAway() {
-    if (!layout || !item) return;
-    const result = store(layout, item.uid);
-    apply({ ok: true, layout: result.layout }, t.room.stored(label(item.type)));
+  function putAway(target = item) {
+    if (!layout || !target) return;
+    const result = store(layout, target.uid);
+    apply({ ok: true, layout: result.layout }, t.room.stored(label(target.type)));
     setSelected(null);
+  }
+
+  /** Mover, girar y guardar desde una fila de "En el cuarto" (acciones de VoiceOver). */
+  function rowActions(target: RoomItem) {
+    const s = MANIFEST.types[target.type];
+    return [
+      { name: 'activate', label: t.room.choose },
+      ...dirsFor(target).map(({ dir }) => ({ name: `move:${dir}`, label: t.room.moveHint[dir] })),
+      ...(s && s.facings.length > 1 && target.place.on === 'floor' ? [{ name: 'rotate', label: t.room.rotate }] : []),
+      { name: 'store', label: t.room.putAway },
+    ];
+  }
+
+  /** Hace la acción con ese objeto (y lo elige) y anuncia el resultado o el motivo. */
+  function rowAction(target: RoomItem, action: string) {
+    if (!layout) return;
+    setSelected(target.uid);
+    setProblem(null);
+    if (action === 'rotate') apply(rotate(layout, MANIFEST, target.uid), t.room.rotated);
+    else if (action === 'store') putAway(target);
+    else if (action.startsWith('move:')) apply(move(layout, MANIFEST, target.uid, action.slice('move:'.length) as Dir), t.room.moved);
   }
 
   function changeVariant(variant: string) {
@@ -125,8 +151,28 @@ export default function EditRoom() {
           feedback.confirm();
           router.back();
         },
+        // Otra pantalla guardó antes: se muestra lo guardado, para no pisarlo (`t.room.conflict` lo dice).
+        onError: (error) => {
+          if (!(error instanceof ApiError) || error.status !== 409) return;
+          setDraft(null);
+          setHistory([]);
+          setSelected(null);
+          setProblem(null);
+        },
       },
     );
+  }
+
+  /** Salir sin guardar: si hay cambios, se pregunta primero. Es la única salida sin guardar de esta pantalla. */
+  function cancel() {
+    if (!draft) {
+      router.back();
+      return;
+    }
+    Alert.alert(t.room.discardTitle, t.room.discardBody, [
+      { text: t.room.discardKeep, style: 'cancel' },
+      { text: t.room.discardConfirm, style: 'destructive', onPress: () => router.back() },
+    ]);
   }
 
   // Inventario: lo que la persona tiene y no está en el cuarto (sin siluetas de lo que le falta).
@@ -152,7 +198,7 @@ export default function EditRoom() {
           <Button title={t.room.save} loading={save.isPending} disabled={!draft} onPress={saveAndClose} />
           <View style={styles.row}>
             <Button variant="secondary" title={t.room.undo} disabled={!history.length} onPress={undo} style={styles.flex} />
-            <Button variant="plain" title={t.settings.cancel} onPress={() => router.back()} style={styles.flex} />
+            <Button variant="plain" title={t.settings.cancel} onPress={cancel} style={styles.flex} />
           </View>
         </>
       }>
@@ -168,21 +214,35 @@ export default function EditRoom() {
               setProblem(null);
             }}
             onPressCell={(cell) => {
-              if (item?.place.on === 'floor') {
-                apply(moveTo(layout, MANIFEST, item.uid, { on: 'floor', x: cell.x, y: cell.y, rot: item.place.rot }));
-              }
+              // Lo que también va en el piso (aunque esté encima de algo) va a la casilla tocada, con
+              // el mismo giro que marcan sus casillas válidas.
+              if (!item || !spec?.place.includes('floor')) return;
+              const rot = item.place.on === 'floor' ? item.place.rot : (spec.facings[0] ?? 0);
+              apply(moveTo(layout, MANIFEST, item.uid, { on: 'floor', x: cell.x, y: cell.y, rot }), t.room.moved);
             }}
+            editing
+            onDrop={(uid, place) => {
+              setSelected(uid);
+              apply(moveTo(layout, MANIFEST, uid, place), t.room.moved);
+            }}
+            onDropFail={(_, reason) => setProblem(reason)}
             accessibilityLabel={t.room.label('', layout.items.map((i) => label(i.type)))}
           />
 
-          {problem ? <Notice text={problem === 'full' ? t.room.full : t.room.reasons[problem]} /> : null}
+          {problem ? (
+            <Notice
+              text={
+                problem === 'full' ? t.room.full : problem === 'surface' ? t.room.dropOnFurniture : t.room.reasons[problem]
+              }
+            />
+          ) : null}
           {saveError ? <Notice text={saveError} /> : null}
 
           {item && spec ? (
             <Group title={label(item.type)}>
               <GroupRow first>
                 <View style={styles.arrows}>
-                  {(item.place.on === 'wall' ? wallDirs(item.place.wall) : FLOOR_DIRS).map(({ dir, arrow }) => (
+                  {dirsFor(item).map(({ dir, arrow }) => (
                     <Button
                       key={dir}
                       variant="secondary"
@@ -202,7 +262,7 @@ export default function EditRoom() {
                       style={styles.flex}
                     />
                   ) : null}
-                  <Button variant="secondary" title={t.room.putAway} onPress={putAway} style={styles.flex} />
+                  <Button variant="secondary" title={t.room.putAway} onPress={() => putAway()} style={styles.flex} />
                 </View>
                 {variants.length > 1 ? (
                   <SegmentedChoice
@@ -216,11 +276,22 @@ export default function EditRoom() {
             </Group>
           ) : null}
 
-          {/* Elegir sin tocar el dibujo: para VoiceOver y para quien prefiera una lista. */}
+          {/*
+            Elegir sin tocar el dibujo: para VoiceOver y para quien prefiera una lista. Con VoiceOver
+            cada fila es un elemento con acciones (mover en cada dirección, girar, guardar), igual que
+            los botones de arriba; el resultado o el motivo se anuncia.
+          */}
           <Group title={t.room.inRoomTitle}>
             {layout.items.map((placedItem, index) => (
               <GroupRow key={placedItem.uid} first={index === 0}>
-                <View style={styles.row}>
+                <View
+                  style={styles.row}
+                  accessible
+                  accessibilityRole="button"
+                  accessibilityLabel={label(placedItem.type)}
+                  accessibilityState={{ selected: placedItem.uid === selected }}
+                  accessibilityActions={rowActions(placedItem)}
+                  onAccessibilityAction={(event) => rowAction(placedItem, event.nativeEvent.actionName)}>
                   <ThemedText style={styles.flex}>{label(placedItem.type)}</ThemedText>
                   <Button
                     variant={placedItem.uid === selected ? 'secondary' : 'plain'}

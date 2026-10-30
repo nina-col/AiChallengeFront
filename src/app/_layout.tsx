@@ -1,12 +1,14 @@
 import { QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useTheme } from '@/hooks/use-theme';
+import { useIsDark, useTheme } from '@/hooks/use-theme';
 import { useLocale, type Locale } from '@/i18n';
 import { api } from '@/lib/api';
 import { useReducedMotion } from '@/lib/feedback';
@@ -17,32 +19,41 @@ import { preloadSounds } from '@/lib/sounds';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  // La raíz de los gestos (react-native-gesture-handler 3): sin ella, arrastrar en el cuarto no se reconoce.
   return (
-    <SettingsProvider>
-      <QueryClientProvider client={queryClient}>
-        <RootNavigator />
-      </QueryClientProvider>
-    </SettingsProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <SettingsProvider>
+        <QueryClientProvider client={queryClient}>
+          <RootNavigator />
+        </QueryClientProvider>
+      </SettingsProvider>
+    </GestureHandlerRootView>
   );
 }
 
 function RootNavigator() {
   const { ready, settings } = useSettings();
   const theme = useTheme();
-  const dark = useColorScheme() === 'dark';
+  const dark = useIsDark();
+  const [fontsLoaded, fontError] = useFonts({
+    'Atkinson-Regular': require('@/assets/fonts/Atkinson-Regular.ttf'),
+    'Atkinson-Bold': require('@/assets/fonts/Atkinson-Bold.ttf'),
+    'Lexend-Regular': require('@/assets/fonts/Lexend-Regular.ttf'),
+    'Lexend-SemiBold': require('@/assets/fonts/Lexend-SemiBold.ttf'),
+  });
   const reducedMotion = useReducedMotion();
   const locale = useLocale();
 
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
-  }, [ready]);
+    if (ready && (fontsLoaded || fontError)) SplashScreen.hideAsync();
+  }, [ready, fontsLoaded, fontError]);
   useEffect(() => {
     if (ready && settings.sounds) preloadSounds();
   }, [ready, settings.sounds]);
   useOpenCheckoutFromNotification(ready && settings.onboarded);
   useServerLocale(locale, ready && settings.onboarded);
 
-  if (!ready) return null;
+  if (!ready || (!fontsLoaded && !fontError)) return null;
 
   const base = dark ? DarkTheme : DefaultTheme;
   return (
@@ -58,19 +69,21 @@ function RootNavigator() {
           border: theme.separator,
         },
       }}>
-      <StatusBar style="auto" />
+      <StatusBar style={dark ? 'light' : 'dark'} />
       {/*
         Las pestañas y los flujos llevan su propio Stack con encabezado nativo. Los flujos van a
         pantalla completa: en hoja, deslizar hacia abajo arrastraba los botones fuera de la vista
         y podía cerrar el registro a medias. Se cierran con "Cerrar", arriba a la derecha.
       */}
       <Stack screenOptions={{ headerShown: false, animation: reducedMotion ? 'fade' : 'default' }}>
+        <Stack.Screen name="zen" options={{ presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="appearance" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="checkin" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="checkout" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="request" options={{ presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="place" options={{ presentation: 'fullScreenModal' }} />
         {/* Solo se lee (no tiene botones abajo): basta una hoja que se cierra deslizando. */}
         <Stack.Screen name="recap" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="place" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );
@@ -115,3 +128,9 @@ function useServerLocale(locale: Locale, enabled: boolean) {
       .catch(() => {});
   }, [locale, enabled]);
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});

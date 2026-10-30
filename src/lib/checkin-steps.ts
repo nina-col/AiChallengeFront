@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { router, type Href } from 'expo-router';
 
+import { checkinOrder, selectedDomainIds } from '@/lib/checkin-route';
 import { useT } from '@/i18n';
 import { api } from '@/lib/api';
 import { useCheckinDraft } from '@/lib/checkin-draft';
@@ -25,11 +26,9 @@ export function useCheckinSteps() {
   useEffect(() => {
     if (draft.askPlace === undefined && spaces.isSuccess) update({ askPlace });
   }, [draft.askPlace, spaces.isSuccess, askPlace, update]);
-  const domains = catalog.data?.domains.map((d) => d.id) ?? FALLBACK_DOMAINS;
+  const domains = selectedDomainIds(draft.selectedDomains, catalog.data?.domains.map((d) => d.id) ?? FALLBACK_DOMAINS);
   // 'scan' (foto y sonido) es opcional; sus pantallas internas no cuentan como pasos.
-  const order = repeat
-    ? ['task', 'feeling', 'discomfort', 'effort']
-    : ['task', 'feeling', ...(askPlace ? ['place'] : []), 'discomfort', 'effort', 'scan', ...domains];
+  const order = repeat ? ['task', 'feeling', 'discomfort', 'effort'] : checkinOrder(askPlace, domains);
 
   return {
     ready: spaces.isSuccess && catalog.isSuccess,
@@ -45,7 +44,7 @@ export function useCheckinSteps() {
     /** Avanza al paso que sigue a `step`; `false` si ya no quedan pasos. */
     goAfter: (step: string) => {
       const next = order[order.indexOf(step) + 1];
-      if (!next) return false;
+      if (order.indexOf(step) < 0 || !next) return false;
       if (domains.includes(next)) router.push({ pathname: '/checkin/[domain]', params: { domain: next } });
       else router.push(`/checkin/${next}` as Href);
       return true;

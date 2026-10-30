@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ITEMS, LAYERS, SCENE, type ItemId, type Sky, type Wave } from '@/components/desk/layers';
+import { useSettings } from '@/lib/settings';
 import { Motion, Radius } from '@/constants/theme';
 import { useFeedback, useMotionLevel } from '@/lib/feedback';
 
@@ -59,6 +60,7 @@ type DeskSceneProps = {
  * vez y con pausas.
  */
 export function DeskScene({ items, highlight, settle, interactive, accessibilityLabel, style }: DeskSceneProps) {
+  const { settings } = useSettings();
   const level = useMotionLevel();
   const feedback = useFeedback();
   const [sky] = useState(() => skyFor(new Date().getHours()));
@@ -118,6 +120,8 @@ export function DeskScene({ items, highlight, settle, interactive, accessibility
   const fanFrame = twitch === 'fan' ? 1 : 0;
   const sway = twitch === 'sway';
   const unit = width / SCENE.width;
+
+  if (settings.focusMode) return null;
 
   const content = (
     <View
