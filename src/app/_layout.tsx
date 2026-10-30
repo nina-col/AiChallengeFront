@@ -1,12 +1,12 @@
 import { QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useTheme } from '@/hooks/use-theme';
+import { useIsDark, useTheme } from '@/hooks/use-theme';
 import { useLocale, type Locale } from '@/i18n';
 import { api } from '@/lib/api';
 import { useReducedMotion } from '@/lib/feedback';
@@ -29,20 +29,26 @@ export default function RootLayout() {
 function RootNavigator() {
   const { ready, settings } = useSettings();
   const theme = useTheme();
-  const dark = useColorScheme() === 'dark';
+  const dark = useIsDark();
+  const [fontsLoaded, fontError] = useFonts({
+    'Atkinson-Regular': require('@/assets/fonts/Atkinson-Regular.ttf'),
+    'Atkinson-Bold': require('@/assets/fonts/Atkinson-Bold.ttf'),
+    'Lexend-Regular': require('@/assets/fonts/Lexend-Regular.ttf'),
+    'Lexend-SemiBold': require('@/assets/fonts/Lexend-SemiBold.ttf'),
+  });
   const reducedMotion = useReducedMotion();
   const locale = useLocale();
 
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
-  }, [ready]);
+    if (ready && (fontsLoaded || fontError)) SplashScreen.hideAsync();
+  }, [ready, fontsLoaded, fontError]);
   useEffect(() => {
     if (ready && settings.sounds) preloadSounds();
   }, [ready, settings.sounds]);
   useOpenCheckoutFromNotification(ready && settings.onboarded);
   useServerLocale(locale, ready && settings.onboarded);
 
-  if (!ready) return null;
+  if (!ready || (!fontsLoaded && !fontError)) return null;
 
   const base = dark ? DarkTheme : DefaultTheme;
   return (
@@ -58,13 +64,14 @@ function RootNavigator() {
           border: theme.separator,
         },
       }}>
-      <StatusBar style="auto" />
+      <StatusBar style={dark ? 'light' : 'dark'} />
       {/*
         Las pestañas y los flujos llevan su propio Stack con encabezado nativo. Los flujos van a
         pantalla completa: en hoja, deslizar hacia abajo arrastraba los botones fuera de la vista
         y podía cerrar el registro a medias. Se cierran con "Cerrar", arriba a la derecha.
       */}
       <Stack screenOptions={{ headerShown: false, animation: reducedMotion ? 'fade' : 'default' }}>
+        <Stack.Screen name="appearance" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="checkin" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="checkout" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="request" options={{ presentation: 'fullScreenModal' }} />

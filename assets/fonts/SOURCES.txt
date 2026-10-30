@@ -1,0 +1,10 @@
+Atkinson Hyperlegible Regular and Bold:
+https://github.com/google/fonts/tree/main/ofl/atkinsonhyperlegible
+License: Atkinson-OFL.txt
+
+Lexend Regular and SemiBold:
+https://github.com/googlefonts/lexend/tree/main/fonts/lexend/ttf
+License: Lexend-OFL.txt (from google/fonts/ofl/lexend)
+
+These fonts are bundled locally and loaded with expo-font. They are optional
+presentation choices; the app does not assign a font to a diagnosis or profile.

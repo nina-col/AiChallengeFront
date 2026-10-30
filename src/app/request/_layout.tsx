@@ -1,3 +1,4 @@
+import { useTypography } from '@/hooks/use-typography';
 import { Stack } from 'expo-router';
 
 import { CloseButton } from '@/components/close-button';
@@ -7,6 +8,7 @@ import { useT } from '@/i18n';
 export default function RequestLayout() {
   const t = useT();
   const theme = useTheme();
+  const headline = useTypography('headline');
   return (
     <Stack
       screenOptions={{
@@ -14,7 +16,7 @@ export default function RequestLayout() {
         headerShadowVisible: false,
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.primary,
-        headerTitleStyle: { color: theme.text },
+        headerTitleStyle: { color: theme.text, fontFamily: headline.fontFamily, fontSize: headline.fontSize },
         headerRight: () => <CloseButton />,
       }}
     />

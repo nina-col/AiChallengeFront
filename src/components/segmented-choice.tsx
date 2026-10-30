@@ -1,5 +1,5 @@
 import { SymbolView } from 'expo-symbols';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import type { Option } from '@/components/choice-list';
@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { checkEntering } from '@/lib/animations';
+import { useSettings } from '@/lib/settings';
 import { useMotionLevel } from '@/lib/feedback';
 
 /** Tres o menos opciones cortas en una fila (Sí / No / No sé). Lo elegido lleva ícono y fondo. */
@@ -23,8 +24,9 @@ export function SegmentedChoice({
 }) {
   const theme = useTheme();
   const level = useMotionLevel();
+  const { settings } = useSettings();
   return (
-    <View style={styles.row} accessibilityRole="radiogroup" accessibilityLabel={label}>
+    <View style={[styles.row, (settings.textSize !== 'standard' || settings.readingSpacing === 'wide') && { flexDirection: 'column' }]} accessibilityRole="radiogroup" accessibilityLabel={label}>
       {options.map((option) => {
         const isSelected = option.id === selected;
         return (
@@ -32,7 +34,8 @@ export function SegmentedChoice({
             key={option.id}
             onPress={() => onSelect(option.id)}
             accessibilityRole="radio"
-            accessibilityState={{ selected: isSelected }}
+            accessibilityState={{ checked: isSelected }}
+            aria-checked={isSelected}
             accessibilityLabel={option.label}
             style={({ pressed }) => [
               styles.option,
@@ -43,7 +46,7 @@ export function SegmentedChoice({
             ]}>
             {isSelected ? (
               <Animated.View entering={checkEntering(level)}>
-                <SymbolView name="checkmark" size={14} tintColor={theme.primary} accessibilityElementsHidden />
+                {Platform.OS === 'web' ? <ThemedText accessible={false} aria-hidden>✓</ThemedText> : <SymbolView name="checkmark" size={14} tintColor={theme.primary} accessibilityElementsHidden />}
               </Animated.View>
             ) : null}
             <ThemedText type="callout" style={isSelected ? { fontWeight: '600' } : undefined}>
@@ -62,7 +65,9 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   option: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    paddingVertical: Spacing.two,
     minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',

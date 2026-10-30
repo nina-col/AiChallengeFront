@@ -1,3 +1,4 @@
+import { useSettings } from '@/lib/settings';
 import { Image } from 'expo-image';
 
 const poses = {
@@ -8,6 +9,8 @@ const poses = {
 
 /** Quiet companion: decorative, static, and never a control or a reward. */
 export function BeaverMascot({ pose, size = 112 }: { pose: keyof typeof poses; size?: number }) {
+  const { settings } = useSettings();
+  if (!settings.showMascot || settings.focusMode) return null;
   return (
     <Image
       source={poses[pose]}

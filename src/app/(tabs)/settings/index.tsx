@@ -126,6 +126,11 @@ export default function SettingsScreen() {
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled">
+      <Group title={t.appearance.title} footer={t.appearance.entryHint}>
+        <GroupRow first>
+          <Button title={t.appearance.open} variant="secondary" onPress={() => router.push('/appearance')} />
+        </GroupRow>
+      </Group>
       <View style={styles.block}>
         <ThemedText type="footnote" themeColor="textSecondary" style={styles.label}>
           {t.settings.language}
@@ -141,7 +146,7 @@ export default function SettingsScreen() {
         />
       </View>
 
-      <View style={styles.block}>
+      {!settings.focusMode ? <View style={styles.block}>
         <ThemedText type="footnote" themeColor="textSecondary" accessibilityRole="header" style={styles.label}>
           {t.settings.experience}
         </ThemedText>
@@ -153,7 +158,7 @@ export default function SettingsScreen() {
         <ThemedText type="footnote" themeColor="textSecondary" style={styles.label} importantForAccessibility="no">
           {t.settings.previewHint}
         </ThemedText>
-      </View>
+      </View> : null}
 
       <View style={styles.block}>
         <ThemedText type="footnote" themeColor="textSecondary" style={styles.label}>
@@ -190,8 +195,6 @@ export default function SettingsScreen() {
           </GroupRow>
         ) : null}
         {toggle('haptics', t.settings.haptics)}
-        {toggle('softContrast', t.settings.softContrast)}
-        {toggle('showDesk', t.settings.showDesk, false, false, t.settings.showDeskHint)}
       </Group>
 
       <View style={styles.block}>
