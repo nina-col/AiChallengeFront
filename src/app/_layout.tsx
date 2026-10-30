@@ -71,6 +71,7 @@ function RootNavigator() {
         y podía cerrar el registro a medias. Se cierran con "Cerrar", arriba a la derecha.
       */}
       <Stack screenOptions={{ headerShown: false, animation: reducedMotion ? 'fade' : 'default' }}>
+        <Stack.Screen name="zen" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="appearance" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="checkin" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="checkout" options={{ presentation: 'fullScreenModal' }} />

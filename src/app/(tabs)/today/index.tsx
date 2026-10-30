@@ -104,9 +104,10 @@ export default function Today() {
           {t.today.promptTitle}
         </ThemedText>
         <ThemedText themeColor="textSecondary" style={styles.center}>
-          {t.today.promptBody}
+          {t.pathway.homeBody}
         </ThemedText>
-        <Button title={t.today.start} onPress={() => router.push('/checkin/task')} style={styles.cta} />
+        <Button title={t.pathway.startLabel} onPress={() => router.push('/checkin')} style={styles.cta} />
+        <Button variant="secondary" title={t.pathway.zenLink} onPress={() => router.push('/zen')} style={styles.cta} />
         <Button variant="plain" title={t.today.seeWeek} onPress={() => router.push('/recap')} style={styles.cta} />
       </View>
 

@@ -27,6 +27,7 @@ export default function Welcome() {
         </ThemedText>
       </ScrollView>
       <View style={styles.footer}>
+        <Button variant="plain" title={t.pathway.zenLink} onPress={() => router.push('/zen')} />
         <Button variant="plain" title={t.appearance.open} onPress={() => router.push('/appearance')} />
         <Button title={t.onboarding.start} onPress={() => router.push('/onboarding/how')} />
       </View>

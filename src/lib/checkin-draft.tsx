@@ -6,6 +6,7 @@ import type { CheckinWithProposal, NewCheckin, Response } from '@/lib/types';
 /** Respuestas del registro en curso, mientras la persona avanza por los pasos. */
 export type Draft = {
   askPlace?: boolean;
+  selectedDomains?: string[];
   task?: string;
   feeling?: string;
   spaceId?: string | null;

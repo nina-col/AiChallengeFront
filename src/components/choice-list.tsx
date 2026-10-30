@@ -9,7 +9,7 @@ import { checkEntering } from '@/lib/animations';
 import { useSettings } from '@/lib/settings';
 import { useMotionLevel } from '@/lib/feedback';
 
-export type Option = { id: string; label: string; hint?: string };
+export type Option = { id: string; label: string; hint?: string; emoji?: string };
 
 type ChoiceListProps = {
   options: Option[];
@@ -47,6 +47,7 @@ export function ChoiceList({ options, selected, onSelect, multiple = false, disa
             accessibilityState={{ checked: isSelected, disabled }}
             aria-checked={isSelected}
             aria-disabled={disabled}
+            accessibilityLabel={option.label}
             accessibilityHint={option.hint}
             style={({ pressed }) => [
               styles.row,
@@ -55,6 +56,7 @@ export function ChoiceList({ options, selected, onSelect, multiple = false, disa
               index > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.separator },
               (isSelected || pressed) && { backgroundColor: theme.backgroundSelected },
             ]}>
+            {option.emoji ? <ThemedText accessible={false} accessibilityElementsHidden importantForAccessibility="no" aria-hidden>{option.emoji}</ThemedText> : null}
             <View style={styles.text}>
               <ThemedText>{option.label}</ThemedText>
               {option.hint ? (

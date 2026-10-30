@@ -1,3 +1,4 @@
+import { FEELING_EMOJI } from '@/lib/checkin-route';
 import { QueryFeedback } from '@/components/query-feedback';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
@@ -14,7 +15,7 @@ export default function Feeling() {
   const { draft, update } = useCheckinDraft();
 
   return (
-    <StepScreen step={steps.progress('feeling')} title={t.checkin.feelingTitle}
+    <StepScreen step={steps.progress('feeling')} title={t.checkin.feelingTitle} hint={t.pathway.checkinFaces}
       footer={<Button title={t.common.next} disabled={!draft.feeling || !steps.ready} onPress={() => {
         if (steps.onlySpaceId) update({ spaceId: steps.onlySpaceId });
         steps.goAfter('feeling');
@@ -22,7 +23,7 @@ export default function Feeling() {
       <QueryFeedback query={catalog} />
       <QueryFeedback query={steps.spaces} />
       <ChoiceList
-        options={catalog.data?.feelings ?? []}
+        options={(catalog.data?.feelings ?? []).map((option) => ({ ...option, emoji: FEELING_EMOJI[option.id] }))}
         selected={draft.feeling ? [draft.feeling] : []}
         onSelect={(feeling) => {
           // Con un solo lugar no se pregunta: se usa ese.
