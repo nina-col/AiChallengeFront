@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { StepScreen } from '@/components/step-screen';
+import { ThemedText } from '@/components/themed-text';
 import { useT } from '@/i18n';
 import type { EntryChoice } from '@/lib/checkin-route';
 
@@ -20,10 +21,11 @@ export default function CheckinEntry() {
       <Button variant="plain" title={t.pathway.zenLink} onPress={() => router.push('/zen')} /></>
     }>
       <ChoiceList options={[
-        { id: 'sensory', label: t.pathway.sensory, hint: t.pathway.sensoryHint },
-        { id: 'internal', label: t.pathway.internal, hint: t.pathway.internalHint },
-        { id: 'unsure', label: t.pathway.unsure, hint: t.pathway.unsureHint },
+        { id: 'sensory', label: t.pathway.sensory, hint: t.pathway.sensoryHint, art: 'sensory' },
+        { id: 'internal', label: t.pathway.internal, hint: t.pathway.internalHint, art: 'mind' },
+        { id: 'unsure', label: t.pathway.unsure, hint: t.pathway.unsureHint, art: 'unsure' },
       ]} selected={choice ? [choice] : []} onSelect={(id) => setChoice(id as EntryChoice)} />
+      <ThemedText type="footnote" themeColor="textSecondary">{t.pathway.timeNote}</ThemedText>
     </StepScreen>
   );
 }

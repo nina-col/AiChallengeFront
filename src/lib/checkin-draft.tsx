@@ -6,6 +6,8 @@ import type { CheckinWithProposal, NewCheckin, Response } from '@/lib/types';
 /** Respuestas del registro en curso, mientras la persona avanza por los pasos. */
 export type Draft = {
   askPlace?: boolean;
+  /** `inner`: lo que pasa no es del entorno (ver `innerOrder`). */
+  route?: 'inner';
   selectedDomains?: string[];
   task?: string;
   feeling?: string;
@@ -70,7 +72,7 @@ export function toNewCheckin(draft: Draft, focus: string | null): NewCheckin {
     space_id: draft.spaceId ?? null,
     task: draft.task ?? 'other',
     feeling: draft.feeling ?? 'other',
-    discomfort_before: draft.discomfort ?? 3,
+    discomfort_before: draft.discomfort ?? draft.effort ?? 3,
     effort_before: draft.effort ?? 3,
     observations: Object.entries(draft.answers).map(([stimulus, response]) => ({
       stimulus,

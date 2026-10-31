@@ -4,6 +4,7 @@ import { SymbolView } from 'expo-symbols';
 import { useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
+import { ArtTile } from '@/components/art-tile';
 import { BeaverMascot } from '@/components/beaver-mascot';
 import { Button } from '@/components/button';
 import { DeskScene } from '@/components/desk/desk-scene';
@@ -150,12 +151,14 @@ export default function Today() {
         <ThemedText type="headline" style={styles.center}>
           {t.today.promptTitle}
         </ThemedText>
-        <ThemedText themeColor="textSecondary" style={styles.center}>
-          {t.pathway.homeBody}
-        </ThemedText>
         <Button title={t.pathway.startLabel} onPress={() => router.push('/checkin')} style={styles.cta} />
-        <Button variant="secondary" title={t.pathway.zenLink} onPress={() => router.push('/zen')} style={styles.cta} />
-        <Button variant="plain" title={t.today.seeWeek} onPress={() => router.push('/recap')} style={styles.cta} />
+      </View>
+
+      <View style={styles.tiles}>
+        <ArtTile art="zen" label={t.games.hubTitle} onPress={() => router.push('/zen')} />
+        {settings.focusMode ? null : <ArtTile art="energy" label={t.energy.tile} onPress={() => router.push('/energy')} />}
+        {settings.focusMode ? null : <ArtTile art="strategies" label={t.strategies.tile} onPress={() => router.push('/strategies')} />}
+        <ArtTile art="week" label={t.today.seeWeek} onPress={() => router.push('/recap')} />
       </View>
 
       {/* Cada lugar recuerda lo que se probó ahí, ayudara o no. */}
@@ -272,6 +275,11 @@ const styles = StyleSheet.create({
   },
   prompt: {
     alignItems: 'center',
+    gap: Spacing.three,
+  },
+  tiles: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.three,
   },
   center: {

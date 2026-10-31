@@ -5,6 +5,7 @@ import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { StepScreen } from '@/components/step-screen';
 import { useT } from '@/i18n';
+import { TASK_ART } from '@/lib/art';
 import { useCheckinDraft } from '@/lib/checkin-draft';
 import { useCheckinSteps } from '@/lib/checkin-steps';
 import { useCatalog } from '@/lib/queries';
@@ -27,7 +28,7 @@ export default function Task() {
       footer={<Button title={t.common.next} disabled={!draft.task} onPress={() => steps.goAfter('task')} />}>
       <QueryFeedback query={catalog} />
       <ChoiceList
-        options={visible}
+        options={visible.map((task) => ({ ...task, art: TASK_ART[task.id] }))}
         selected={draft.task ? [draft.task] : []}
         onSelect={(task) => {
           update({ task });

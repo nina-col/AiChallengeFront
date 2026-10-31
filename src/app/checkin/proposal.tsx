@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { STIMULUS_ART } from '@/lib/art';
 import { useMutation } from '@tanstack/react-query';
 import { SymbolView } from 'expo-symbols';
 import { router } from 'expo-router';
@@ -25,6 +27,8 @@ export default function ProposalScreen() {
   const labels = useLabels();
   const level = useMotionLevel();
   const { draft, update } = useCheckinDraft();
+  // Primero qué hacer; el porqué, a un toque.
+  const [showWhy, setShowWhy] = useState(false);
   const result = draft.result;
   const proposal = result?.proposal;
 
@@ -37,11 +41,18 @@ export default function ProposalScreen() {
 
   if (!proposal) {
     const nothingClear = !result.checkin.focus_stimulus;
+    const inner = nothingClear && draft.route === 'inner';
     return (
       <StepScreen step={{ number: 2, total: 2, label: t.checkin.choosePhase }}
+        art={inner ? 'unsure' : undefined}
         title={nothingClear ? t.proposal.noneTitle : t.proposal.exhaustedTitle}
-        hint={nothingClear ? t.proposal.noneBody : t.proposal.exhaustedBody}
-        footer={<Button title={t.common.backToToday} onPress={() => router.dismissTo('/today')} />}
+        hint={inner ? t.pathway.innerNone : nothingClear ? t.proposal.noneBody : t.proposal.exhaustedBody}
+        footer={
+          <>
+            {inner ? <Button variant="secondary" title={t.pathway.zenLink} onPress={() => router.push('/zen')} /> : null}
+            <Button title={t.common.backToToday} onPress={() => router.dismissTo('/today')} />
+          </>
+        }
       />
     );
   }
@@ -100,7 +111,7 @@ export default function ProposalScreen() {
   );
 
   return (
-    <StepScreen step={{ number: 2, total: 2, label: t.checkin.choosePhase }} title={adjustment.title} footer={footer}>
+    <StepScreen step={{ number: 2, total: 2, label: t.checkin.choosePhase }} art={STIMULUS_ART[result.checkin.focus_stimulus ?? '']} title={adjustment.title} footer={footer}>
       {/* Fundido breve al cambiar de sugerencia: muestra que es otra idea. Sin movimiento si se pidió. */}
       <Animated.View
         key={adjustment.id}
@@ -111,15 +122,19 @@ export default function ProposalScreen() {
           <ThemedText type="footnote">{kindLabel}</ThemedText>
         </View>
         <ThemedText>{adjustment.steps}</ThemedText>
-        <View style={styles.why}>
-          <ThemedText type="footnote" themeColor="textSecondary">
-            {t.proposal.whyLabel}
-          </ThemedText>
-          <ThemedText type="callout">{adjustment.why}</ThemedText>
-        </View>
-        <ThemedText type="footnote" themeColor="textSecondary">
-          {reasonText(proposal, t, labels.stimulus(result.checkin.focus_stimulus ?? ''))}
-        </ThemedText>
+        {showWhy ? (
+          <View style={styles.why}>
+            <ThemedText type="footnote" themeColor="textSecondary">
+              {t.proposal.whyLabel}
+            </ThemedText>
+            <ThemedText type="callout">{adjustment.why}</ThemedText>
+            <ThemedText type="footnote" themeColor="textSecondary">
+              {reasonText(proposal, t, labels.stimulus(result.checkin.focus_stimulus ?? ''))}
+            </ThemedText>
+          </View>
+        ) : (
+          <Button variant="plain" title={t.proposal.whyLabel} style={styles.more} onPress={() => setShowWhy(true)} />
+        )}
         {adjustment.kind === 'self' && ITEM_FOR_ADJUSTMENT[adjustment.id] ? (
           <View style={styles.desk}>
             <SymbolView name="sparkles" size={14} tintColor={theme.accent} accessibilityElementsHidden />
@@ -167,6 +182,11 @@ const styles = StyleSheet.create({
   },
   why: {
     gap: Spacing.one,
+  },
+  more: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 0,
+    minHeight: 44,
   },
   desk: {
     flexDirection: 'row',

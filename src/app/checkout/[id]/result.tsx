@@ -14,6 +14,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useLocale, useT } from '@/i18n';
 import { contentEntering } from '@/lib/animations';
+import { isInner } from '@/lib/checkin-route';
 import { outcomeKey, type SavedOutcome } from '@/lib/checkout';
 import { useDesk } from '@/lib/desk';
 import { useFeedback, useMotionLevel } from '@/lib/feedback';
@@ -66,25 +67,27 @@ export default function CheckoutResult() {
   const after = checkin.discomfort_after ?? checkin.effort_after ?? before;
   const isComparison = checkin.adjustment?.kind === 'baseline';
 
+  const change = isInner(checkin.focus_stimulus) ? t.checkout.changeEffort(before, after) : t.checkout.change(before, after);
+
   let title: string;
   const lines: string[] = [];
   if (isComparison) {
     title = t.checkout.comparisonResult;
-    lines.push(t.checkout.change(before, after), t.checkout.comparisonBody);
+    lines.push(change, t.checkout.comparisonBody);
   } else if (checkin.outcome === 'helped') {
     title = t.checkout.helpedResult;
     lines.push(
-      t.checkout.change(before, after),
+      change,
       t.checkout.helpedBody,
       t.checkout.savedTo(labels.task(checkin.task), checkin.space?.name),
     );
   } else if (checkin.outcome === 'not_helped') {
     title = t.checkout.notHelpedResult;
-    lines.push(t.checkout.change(before, after), t.checkout.notHelpedBody);
+    lines.push(change, t.checkout.notHelpedBody);
   } else {
     title = t.checkout.unclearResult;
     lines.push(
-      t.checkout.change(before, after),
+      change,
       after < before ? t.checkout.unclearBetterBody : t.checkout.unclearBody,
     );
   }

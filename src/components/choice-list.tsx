@@ -2,6 +2,8 @@ import { SymbolView } from 'expo-symbols';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { LayoutAnimationConfig } from 'react-native-reanimated';
 
+import { PixelIcon } from '@/components/pixel-icon';
+import type { IconName } from '@/components/pixel-icons';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -9,7 +11,15 @@ import { checkEntering } from '@/lib/animations';
 import { useSettings } from '@/lib/settings';
 import { useMotionLevel } from '@/lib/feedback';
 
-export type Option = { id: string; label: string; hint?: string; emoji?: string };
+export type Option = {
+  id: string;
+  label: string;
+  hint?: string;
+  emoji?: string;
+  /** Dibujo de la opción; siempre junto a su texto. `artCount`: cuántas veces se repite. */
+  art?: IconName;
+  artCount?: number;
+};
 
 type ChoiceListProps = {
   options: Option[];
@@ -56,6 +66,13 @@ export function ChoiceList({ options, selected, onSelect, multiple = false, disa
               index > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.separator },
               (isSelected || pressed) && { backgroundColor: theme.backgroundSelected },
             ]}>
+            {option.art ? (
+              <View style={styles.art}>
+                {Array.from({ length: option.artCount ?? 1 }, (_, i) => (
+                  <PixelIcon key={i} name={option.art!} size={option.artCount ? 24 : 40} />
+                ))}
+              </View>
+            ) : null}
             {option.emoji ? <ThemedText accessible={false} accessibilityElementsHidden importantForAccessibility="no" aria-hidden>{option.emoji}</ThemedText> : null}
             <View style={styles.text}>
               <ThemedText>{option.label}</ThemedText>
@@ -87,6 +104,10 @@ export function ChoiceList({ options, selected, onSelect, multiple = false, disa
 }
 
 const styles = StyleSheet.create({
+  art: {
+    flexDirection: 'row',
+    gap: Spacing.half,
+  },
   group: {
     borderRadius: Radius.md,
     borderCurve: 'continuous',

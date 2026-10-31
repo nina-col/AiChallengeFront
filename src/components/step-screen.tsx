@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { PixelIcon } from '@/components/pixel-icon';
+import type { IconName } from '@/components/pixel-icons';
 import { StepProgress } from '@/components/step-progress';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -10,6 +12,8 @@ import { useTheme } from '@/hooks/use-theme';
 type StepScreenProps = {
   /** Paso actual y total; se omite en pantallas que no son parte de la secuencia. */
   step?: { number: number; total: number; label: string };
+  /** Dibujo que acompaña al título: dice de qué trata la pantalla antes de leer. */
+  art?: IconName;
   title: string;
   hint?: string;
   children?: ReactNode;
@@ -23,7 +27,7 @@ type StepScreenProps = {
  * texto. Los flujos se abren a pantalla completa (ver `app/_layout.tsx`) para que el gesto de
  * la hoja no arrastre los botones.
  */
-export function StepScreen({ step, title, hint, children, footer }: StepScreenProps) {
+export function StepScreen({ step, art, title, hint, children, footer }: StepScreenProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   return (
@@ -36,6 +40,7 @@ export function StepScreen({ step, title, hint, children, footer }: StepScreenPr
         contentContainerStyle={styles.content}>
         <View style={styles.heading}>
           {step ? <StepProgress number={step.number} total={step.total} label={step.label} /> : null}
+          {art ? <PixelIcon name={art} size={80} /> : null}
           <ThemedText type="title" accessibilityRole="header">
             {title}
           </ThemedText>

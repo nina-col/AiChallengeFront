@@ -4,16 +4,30 @@ import { useEffect, useRef, useState } from 'react';
 import { AppState, Pressable, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ArtTile } from '@/components/art-tile';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { Notice } from '@/components/notice';
+import { PaintByNumbers } from '@/components/paint-by-numbers';
+import type { IconName } from '@/components/pixel-icons';
 import { StepScreen } from '@/components/step-screen';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useZenSession } from '@/hooks/use-zen-session';
 import { useLocale, useT } from '@/i18n';
+import { useCurrentPlace } from '@/lib/room';
 import { guideIndex, sessionRemaining, zenDuration, type ZenActivity } from '@/lib/zen-session';
+
+/** Los minijuegos del menú. Los tres primeros son pausas con tiempo; pintar y decorar van sin reloj. */
+type Game = ZenActivity | 'paint' | 'decorate';
+const GAMES: { id: Game; art: IconName }[] = [
+  { id: 'breathing', art: 'breath' },
+  { id: 'grounding', art: 'grounding' },
+  { id: 'garden', art: 'garden' },
+  { id: 'paint', art: 'paint' },
+  { id: 'decorate', art: 'decorate' },
+];
 
 type VoiceChoice = { activity: ZenActivity; duration: number; voice: boolean };
 export default function Zen() {
@@ -21,6 +35,21 @@ export default function Zen() {
   const locale = useLocale();
   const theme = useTheme();
   const { session, dispatch } = useZenSession();
+  const place = useCurrentPlace();
+  const [game, setGame] = useState<Game | null>(null);
+  const [painting, setPainting] = useState(false);
+  const names: Record<Game, string> = { breathing: t.zen.breathing, grounding: t.zen.grounding, garden: t.zen.garden, paint: t.games.paintName, decorate: t.games.decorateName };
+  const art = GAMES.find((g) => g.id === game)?.art;
+  function choose(id: Game) {
+    setGame(id);
+    if (id === 'breathing' || id === 'grounding' || id === 'garden') setChoice((old) => ({ ...old, activity: id }));
+  }
+  function openRoom() {
+    if (!place) return;
+    close();
+    router.push({ pathname: '/place/[id]/edit', params: { id: place.id } });
+  }
+  const timed = game === 'breathing' || game === 'grounding' || game === 'garden';
   const [choice, setChoice] = useState<VoiceChoice>({ activity: 'grounding', duration: 120, voice: false });
   const [leaves, setLeaves] = useState<boolean[]>(Array(6).fill(false));
   const [voiceFailed, setVoiceFailed] = useState(false);
@@ -84,23 +113,39 @@ export default function Zen() {
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.background }]}>
-      <StepScreen title={done ? t.zen.done : t.zen.title} hint={done ? t.zen.doneHint : t.zen.hint} footer={
-        setup ? <><Button title={t.zen.start} onPress={() => dispatch({ type: 'start', duration: zenDuration(choice.activity, choice.duration), now: Date.now() })} /><Button title={t.zen.exit} variant="plain" onPress={close} /></>
+      <StepScreen art={setup && !painting ? art : undefined} title={done ? t.zen.done : setup && game ? names[game] : t.games.hubTitle} hint={done ? t.zen.doneHint : setup && !game ? t.games.hubHint : undefined} footer={
+        painting ? <Button title={t.zen.back} onPress={() => { setPainting(false); setGame(null); }} />
+        : setup && !game ? <Button title={t.zen.exit} variant="plain" onPress={close} />
+        : setup ? <>
+            {timed ? <Button title={t.zen.start} onPress={() => dispatch({ type: 'start', duration: zenDuration(choice.activity, choice.duration), now: Date.now() })} /> : null}
+            {game === 'paint' ? <Button title={t.zen.start} onPress={() => setPainting(true)} /> : null}
+            {game === 'decorate' ? <Button title={t.games.decorateOpen} disabled={!place} onPress={openRoom} /> : null}
+            <Button title={t.games.other} variant="plain" onPress={() => setGame(null)} />
+          </>
         : done ? <Button title={t.zen.back} onPress={close} />
         : <><Button title={running ? t.zen.pause : t.zen.resume} onPress={running ? pause : () => dispatch({ type: 'resume', now: Date.now() })} /><Button title={t.zen.stop} variant="plain" onPress={finish} /></>
       }>
-        {setup ? <>
-          <ThemedText type="headline" accessibilityRole="header">{t.zen.activity}</ThemedText>
-          <ChoiceList options={[
-            { id: 'grounding', label: t.zen.grounding, hint: t.zen.groundingHint },
-            { id: 'breathing', label: t.zen.breathing, hint: t.zen.breathingHint },
-            { id: 'garden', label: t.zen.garden, hint: t.zen.gardenHint },
-          ]} selected={[choice.activity]} onSelect={(activity) => setChoice((old) => ({ ...old, activity: activity as ZenActivity }))} />
-          {choice.activity === 'garden' ? <Notice text={t.zen.fixed} /> : <>
+        {painting ? <PaintByNumbers /> : setup && !game ? (
+          <View style={styles.hub}>
+            {GAMES.map((g) => <ArtTile key={g.id} art={g.art} label={names[g.id]} size={80} onPress={() => choose(g.id)} />)}
+          </View>
+        ) : setup && game ? <>
+          <ThemedText type="headline" accessibilityRole="header">{t.games.howTo}</ThemedText>
+          <View style={styles.steps}>
+            {t.games[game].map((line, i) => (
+              <View key={line} style={styles.step}>
+                <View style={[styles.stepNumber, { backgroundColor: theme.backgroundSelected }]}><ThemedText type="bodyStrong">{i + 1}</ThemedText></View>
+                <ThemedText style={styles.flex}>{line}</ThemedText>
+              </View>
+            ))}
+          </View>
+          {game === 'decorate' && !place ? <Notice text={t.games.decorateNoPlace} /> : null}
+          {game === 'garden' ? <Notice text={t.zen.fixed} /> : null}
+          {game === 'breathing' || game === 'grounding' ? <>
             <ThemedText type="headline" accessibilityRole="header">{t.zen.duration}</ThemedText>
             <ChoiceList options={[60, 120, 300].map((n, i) => ({ id: String(n), label: t.zen.durations[i] }))} selected={[String(choice.duration)]} onSelect={(duration) => setChoice((old) => ({ ...old, duration: Number(duration) }))} />
             {voiceToggle}
-          </>}
+          </> : null}
         </> : !done ? <>
           <View accessible accessibilityLabel={`${t.zen.remaining}: ${time}`} style={styles.clock}>
             <ThemedText type="footnote" themeColor="textSecondary">{t.zen.remaining}</ThemedText>
@@ -131,6 +176,10 @@ export default function Zen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 }, flex: { flex: 1, gap: Spacing.one },
+  hub: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },
+  steps: { gap: Spacing.three },
+  step: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  stepNumber: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   toggle: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   clock: { alignItems: 'center', gap: Spacing.one },
   garden: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three, justifyContent: 'center' },

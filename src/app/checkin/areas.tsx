@@ -3,6 +3,7 @@ import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { StepScreen } from '@/components/step-screen';
 import { useT } from '@/i18n';
+import { DOMAIN_ART } from '@/lib/art';
 import { DOMAIN_IDS } from '@/lib/checkin-route';
 import { useCheckinDraft } from '@/lib/checkin-draft';
 
@@ -17,9 +18,13 @@ export default function Areas() {
   }
   return (
     <StepScreen title={t.pathway.areasTitle} hint={t.pathway.areasHint} footer={
-      <Button title={t.common.next} disabled={!selected.length} onPress={() => router.push('/checkin/task')} />
+      <Button title={t.common.next} disabled={!selected.length} onPress={() => {
+        // Si venía de lo cognitivo y volvió, esas respuestas ya no van.
+        if (draft.route) update({ route: undefined, answers: {}, sources: {}, focus: undefined });
+        router.push('/checkin/task');
+      }} />
     }>
-      <ChoiceList multiple options={DOMAIN_IDS.map((id) => ({ id, label: labels[id] }))} selected={selected} onSelect={select} />
+      <ChoiceList multiple options={DOMAIN_IDS.map((id) => ({ id, label: labels[id], art: DOMAIN_ART[id] }))} selected={selected} onSelect={select} />
       <Button title={t.pathway.all} variant="plain" onPress={() => update({ selectedDomains: [...DOMAIN_IDS], answers: {}, sources: {}, focus: undefined })} />
     </StepScreen>
   );
