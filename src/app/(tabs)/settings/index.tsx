@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { QueryFeedback } from '@/components/query-feedback';
+import { BeaverMascot } from '@/components/beaver-mascot';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { DeskScene } from '@/components/desk/desk-scene';
@@ -150,6 +151,7 @@ export default function SettingsScreen() {
         <ThemedText type="footnote" themeColor="textSecondary" accessibilityRole="header" style={styles.label}>
           {t.settings.experience}
         </ThemedText>
+        <View style={{ alignSelf: 'center' }}><BeaverMascot pose="coffee" size={96} interactive /></View>
         <DeskScene
           items={desk.items}
           interactive

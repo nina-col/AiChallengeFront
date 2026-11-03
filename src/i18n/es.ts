@@ -165,6 +165,10 @@ const es = {
         "Deja que tu atención vuelva al lugar. No tienes que haber logrado nada para terminar esta pausa."
     ]
 },
+  mascot: {
+    "animate": "Animar al castor",
+    "hint": "Toma un sorbo y vuelve a quedarse quieto."
+},
   common: {
     loading: 'Cargando…',
     next: 'Siguiente',
@@ -467,7 +471,7 @@ const es = {
     experience: 'Cómo se ve y suena',
     experienceFooter: 'Con «Reducir movimiento» de iOS todo queda quieto, aunque las animaciones estén activadas.',
     details: 'Animaciones con detalles',
-    detailsHint: 'Tu escritorio cobra vida y lo que te ayuda se celebra.',
+    detailsHint: 'El castor saluda al entrar y toma un sorbo al tocarlo. El escritorio también cobra vida.',
     sounds: 'Sonidos suaves',
     soundsHint: 'Tonos cortos y bajos al avanzar y al terminar. Callan con el modo silencio.',
     volume: 'Volumen',

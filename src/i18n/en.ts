@@ -161,6 +161,10 @@ const en: Strings = {
         "Let your attention return to the space around you. You do not have to achieve anything to finish this break."
     ]
 },
+  mascot: {
+    "animate": "Animate the beaver",
+    "hint": "Takes a sip, then rests again."
+},
   common: {
     loading: 'Loading…',
     next: 'Next',
@@ -449,7 +453,7 @@ const en: Strings = {
     experience: 'Look and sound',
     experienceFooter: 'With iOS Reduce Motion, everything stays still even if animations are on.',
     details: 'Detailed animations',
-    detailsHint: 'Your desk comes to life and what helps you gets celebrated.',
+    detailsHint: 'The beaver waves on arrival and takes a sip when tapped. The desk also comes to life.',
     sounds: 'Soft sounds',
     soundsHint: 'Short, low tones when you move on and when you finish. Quiet in silent mode.',
     volume: 'Volume',

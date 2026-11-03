@@ -129,7 +129,7 @@ function Sample({ maxHeight }: { maxHeight: number }) {
     <ScrollView nestedScrollEnabled style={[styles.sample, { maxHeight, backgroundColor: theme.background, borderColor: theme.primary }]} contentContainerStyle={styles.sampleContent}>
       <View style={styles.sampleHeading}>
         <View style={styles.flex}><ThemedText type="headline">{t.appearance.sampleQuestion}</ThemedText></View>
-        <BeaverMascot pose="coffee" size={48} />
+        <BeaverMascot pose="coffee" size={64} />
       </View>
       <ChoiceList options={[{ id: 'one', label: t.appearance.sampleOne }, { id: 'two', label: t.appearance.sampleTwo }]} selected={[selected]} onSelect={setSelected} />
       {settings.showDesk ? <DeskScene items={[]} accessibilityLabel={t.desk.label([])} style={{ maxWidth: 160, alignSelf: 'center' }} /> : null}
