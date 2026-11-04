@@ -583,6 +583,10 @@ const en: Strings = {
     dataLine: (adjustment: string, helped: number, trials: number) =>
       `I've been recording how I work: when I ${adjustment.toLowerCase()}, it helped ${helped} of ${trials} ${times(trials)}.`,
   },
+  mascot: {
+    animate: 'Animate the beaver',
+    hint: 'Takes a sip, then rests again.',
+  },
   settings: {
     preferences: 'Preferences',
     language: 'Language',
@@ -595,7 +599,7 @@ const en: Strings = {
     experience: 'Look and sound',
     experienceFooter: 'With iOS Reduce Motion, everything stays still even if animations are on.',
     details: 'Detailed animations',
-    detailsHint: 'Your room comes to life, one object at a time.',
+    detailsHint: 'The beaver waves on arrival and takes a sip when tapped. The desk also comes to life.',
     sounds: 'Soft sounds',
     soundsHint: 'Short, low tones when you move on and when you finish. Quiet in silent mode.',
     volume: 'Volume',

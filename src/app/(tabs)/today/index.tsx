@@ -141,7 +141,7 @@ export default function Today() {
       ) : null}
 
         {settings.showMascot && !settings.focusMode ? <View style={styles.companion}>
-          <BeaverMascot pose="coffee" size={72} />
+          <BeaverMascot pose="coffee" size={64} interactive />
           <ThemedText type="callout" themeColor="textSecondary" style={styles.companionText}>
             {t.today.mascotNote}
           </ThemedText>

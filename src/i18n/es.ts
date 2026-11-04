@@ -613,6 +613,10 @@ const es = {
     dataLine: (adjustment: string, helped: number, trials: number) =>
       `He registrado cómo trabajo: cuando ${adjustment.toLowerCase()}, me ayudó en ${helped} de ${trials} ${times(trials)}.`,
   },
+  mascot: {
+    animate: 'Animar al castor',
+    hint: 'Toma un sorbo y vuelve a quedarse quieto.',
+  },
   settings: {
     preferences: 'Preferencias',
     language: 'Idioma',
@@ -625,7 +629,7 @@ const es = {
     experience: 'Cómo se ve y suena',
     experienceFooter: 'Con «Reducir movimiento» de iOS todo queda quieto, aunque las animaciones estén activadas.',
     details: 'Animaciones con detalles',
-    detailsHint: 'Tu cuarto cobra vida, un objeto a la vez.',
+    detailsHint: 'El castor saluda al entrar y toma un sorbo al tocarlo. El escritorio también cobra vida.',
     sounds: 'Sonidos suaves',
     soundsHint: 'Tonos cortos y bajos al avanzar y al terminar. Callan con el modo silencio.',
     volume: 'Volumen',

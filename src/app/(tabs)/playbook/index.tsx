@@ -42,7 +42,7 @@ export default function Playbook() {
 
       {playbook.isSuccess && groups.size === 0 ? (
         <View style={styles.empty}>
-          <BeaverMascot pose="notebook" size={136} />
+          <BeaverMascot pose="notebook" size={128} />
           <ThemedText type="headline" style={styles.center}>
             {t.playbook.emptyTitle}
           </ThemedText>

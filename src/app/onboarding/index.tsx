@@ -15,7 +15,7 @@ export default function Welcome() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.hero} style={styles.scroll}>
-        <BeaverMascot pose="welcome" size={176} />
+        <BeaverMascot pose="welcome" size={192} />
         <ThemedText type="title" accessibilityRole="header">
           {t.onboarding.welcomeTitle}
         </ThemedText>

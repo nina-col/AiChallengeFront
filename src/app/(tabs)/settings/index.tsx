@@ -1,3 +1,4 @@
+import { BeaverMascot } from '@/components/beaver-mascot';
 import { useMutation } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
@@ -156,6 +157,7 @@ export default function SettingsScreen() {
         <ThemedText type="footnote" themeColor="textSecondary" accessibilityRole="header" style={styles.label}>
           {t.settings.experience}
         </ThemedText>
+        <View style={{ alignSelf: 'center' }}><BeaverMascot pose="coffee" size={96} interactive /></View>
         {preview.scene === 'room' && preview.layout ? (
           // Se vuelve a armar al cambiar el nivel de movimiento: así se ve cómo llega en cada uno.
           <RoomView

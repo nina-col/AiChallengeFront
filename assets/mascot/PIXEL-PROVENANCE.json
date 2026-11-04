@@ -1,0 +1,38 @@
+{
+  "tool": "Built-in Imagegen",
+  "source": "Existing beaver mascots supplied by the user; original PNGs preserved.",
+  "layout": {
+    "welcome": "2x2 sheet, row-major cells 0..3",
+    "coffee": "2x2 sheet, row-major cells 0..3",
+    "notebook": "single static image"
+  },
+  "playback": {
+    "sequence": [
+      0,
+      1,
+      2,
+      1,
+      3,
+      0
+    ],
+    "frameMs": 180,
+    "loop": false
+  },
+  "assets": [
+    {
+      "file": "pixel-welcome-sheet.png",
+      "prompt": "Use case: style-transfer. Input image: edit target and character identity reference. Convert this exact orange beaver mascot to authentic low-resolution 2D PIXEL ART matching a cozy pixel-art desk app. Keep orange fur, cream belly and muzzle, two small white buck teeth, dark brown outlines, broad flat brown tail. Strict chunky square pixel clusters on a 64x64 logical pixel grid per character, limited 12-color palette, no smooth vector outlines, no gradients, no anti-aliasing, no blur, no 3D. True transparent background, no checkerboard drawn in the art, no text, no labels, no borders, no grid lines. Output ONE SQUARE PNG SPRITE SHEET arranged as an EXACT 2 by 2 grid of FOUR equal square cells, completely filling the image canvas with no outside margins. Each cell has the same beaver at the exact same scale, position, planted feet baseline and tail registration, fully inside the central 80% of its cell with consistent transparent padding. Read cells in row-major order. Frame 0 top-left: standing calm, eyes open, right paw beside shoulder ready to wave. Frame 1 top-right: same body, right paw lifted outward a few pixels. Frame 2 bottom-left: same body, paw tilted inward for a gentle wave and eyes briefly blinking. Frame 3 bottom-right: same as frame 0, returning to rest. Only paw and eyelids change; the body and tail never jump. No action rays, no sparkles. All four characters are complete and equally sized.",
+      "refinementPrompt": "Use case: style-transfer / precise-object-edit. Edit target is this 2x2 beaver animation sprite sheet. Preserve its transparent background, exactly FOUR equally sized frames in exact 2x2 grid, poses, identity and cell alignment. Correct ONLY the rendering and registration: make the entire image STRICT retro pixel art with fully SOLID flat colors within every pixel cluster. Remove ALL smooth gradients, all glows, all soft shading, all anti-aliasing, all texture. Use only 10 solid color swatches (dark brown outline, 3 flat orange tones, 2 brown tail tones, 2 cream tones, white teeth, dark eyes). Each cell should look like a 64x64 pixel sprite enlarged exactly 8x by nearest-neighbor, with square pixels and stepped silhouettes. Keep the beaver body, tail, feet and head shape exactly identical and aligned in all four cells; only the waving paw and blinking eyelids change. Transparent outside characters, no labels or grid lines. Same scale and position in all cells. Pixel-perfect for a game sprite."
+    },
+    {
+      "file": "pixel-coffee-sheet.png",
+      "prompt": "Use case: style-transfer. Input image: edit target and character identity reference. Convert this exact orange beaver mascot to authentic low-resolution 2D PIXEL ART matching a cozy pixel-art desk app. Keep orange fur, cream belly and muzzle, two small white buck teeth, dark brown outlines, broad flat brown tail. Strict chunky square pixel clusters on a 64x64 logical pixel grid per character, limited 12-color palette, no smooth vector outlines, no gradients, no anti-aliasing, no blur, no 3D. True transparent background, no checkerboard drawn in the art, no text, no labels, no borders, no grid lines. Output ONE SQUARE PNG SPRITE SHEET arranged as an EXACT 2 by 2 grid of FOUR equal square cells, completely filling the image canvas with no outside margins. Each cell has the same seated beaver at the exact same scale, position, seated baseline and tail registration, fully inside central 80% of its cell with identical transparent padding. Read cells in row-major order. Frame 0 top-left: calm seated beaver holding a small cream coffee mug against its belly, eyes open. Frame 1 top-right: same beaver gently lifts mug toward mouth. Frame 2 bottom-left: same body takes a small sip, eyes briefly closed, mug just touching mouth. Frame 3 bottom-right: returns mug to belly, matching frame 0. Only hands, mug and eyelids move, body and tail stationary. No animated steam, no sparkles. All four characters complete and equally sized.",
+      "refinementPrompt": "Use case: precise-object-edit / style-transfer. Edit this pixel beaver asset. Preserve exactly four frames in the same exact 2x2 equal-cell square sprite sheet, same sizes and registration. Keep the sip motion: cup at belly, cup lifted, sipping with closed eyes, cup at belly. Body and tail same silhouette in all frames. Correct ONLY its rendering to authentic low-resolution retro pixel art: REMOVE ALL gradients, subtle texture, glows, blur and soft shading. Every color area must be filled with one completely SOLID FLAT color, with a limited 12-color palette. Square pixel clusters, stepped contours, dark brown outlines, flat orange fur and cream belly, flat brown beaver tail, white teeth. Make it look like 64x64 logical pixels per character enlarged with nearest neighbor. Preserve true alpha transparency. No added objects or text."
+    },
+    {
+      "file": "pixel-notebook.png",
+      "prompt": "Use case: style-transfer. Input image: edit target and character identity reference. Convert this exact orange beaver mascot to authentic low-resolution 2D PIXEL ART matching a cozy pixel-art desk app. Keep orange fur, cream belly and muzzle, two small white buck teeth, dark brown outlines, broad flat brown tail. Strict chunky square pixel clusters on a 64x64 logical pixel grid per character, limited 12-color palette, no smooth vector outlines, no gradients, no anti-aliasing, no blur, no 3D. True transparent background, no checkerboard drawn in the art, no text, no labels, no borders, no grid lines. Output a SINGLE seated beaver holding its purple notebook and small yellow pencil, friendly neutral eyes open. Entire character centered in a square transparent canvas, occupying central 80%, including full tail. This is a static companion asset, not a sprite sheet.",
+      "refinementPrompt": "Use case: precise-object-edit / style-transfer. Edit this pixel beaver asset. Preserve a SINGLE centered character with the purple notebook and yellow pencil, exact pose, transparent padding and identity. This is a static image not a sheet. Correct ONLY its rendering to authentic low-resolution retro pixel art: REMOVE ALL gradients, subtle texture, glows, blur and soft shading. Every color area must be filled with one completely SOLID FLAT color, with a limited 12-color palette. Square pixel clusters, stepped contours, dark brown outlines, flat orange fur and cream belly, flat brown beaver tail, white teeth. Make it look like 64x64 logical pixels per character enlarged with nearest neighbor. Preserve true alpha transparency. No added objects or text."
+    }
+  ]
+}

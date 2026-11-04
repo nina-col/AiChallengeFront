@@ -70,6 +70,7 @@ npm run typecheck
 npm test -- --runInBand
 node scripts/check-appearance.cjs
 node scripts/check-wellbeing.cjs
+node scripts/check-mascot.cjs
 ```
 
 Las pruebas cubren lógica de rutas, sesiones, preferencias y escenas, entre otras áreas. Antes de entregar, revisar también en teléfono: bienvenida, check-in, propuesta y resultado, personalización, pausa de actividades al salir y conexión con la API. Los comandos anteriores son instrucciones de verificación, no una afirmación de que se ejecutaron en cada versión.
@@ -105,7 +106,7 @@ Los cambios de módulos nativos o configuración nativa requieren una nueva comp
 | Movimiento reducido, controles de sonido y modo enfoque | Dar control sobre estímulos y permitir ocultar decoración que pueda distraer. |
 | Texto acompañado de caras e iconos | Apoyar la identificación de estados sin depender únicamente de color o imágenes. |
 | Pausas con duración elegible y voz opcional | Permitir descansar sin completar un test; respiración y anclaje ofrecen 1, 2 o 5 minutos, y el jardín dura 2 minutos. Estos límites no se aplican a todas las actividades del centro de juegos. |
-| Mascota decorativa y opcional | Aportar cercanía sin evaluar ni juzgar a la persona. En este snapshot las poses son estáticas. |
+| Mascota decorativa y opcional | Aportar cercanía sin evaluar ni juzgar a la persona. La mascota usa pixel art: con «Animaciones con detalles» saluda una vez en la bienvenida y toma un sorbo al tocarla en Hoy o Ajustes. Con movimiento reducido permanece quieta; el modo enfoque la oculta. |
 | Llave de dispositivo en SecureStore | Evitar pedir correo y contraseña en el flujo actual. La sesión está ligada al dispositivo; no equivale a una cuenta recuperable entre dispositivos. |
 
 Estas decisiones reflejan la intención del diseño; su utilidad y accesibilidad deben seguir validándose con usuarios neurodivergentes. No representan eficacia clínica demostrada.
@@ -115,5 +116,5 @@ Estas decisiones reflejan la intención del diseño; su utilidad y accesibilidad
 - Backend: repositorio del equipo `AiChallengeBack` y su README.
 - Integración y distribución: [AiChallenge](https://github.com/Quique2/AiChallenge.git).
 - Fuentes y licencias: `assets/fonts/SOURCES.txt` y archivos OFL junto a las fuentes.
-- Procedencia de la mascota: `assets/mascot/PROVENANCE.txt`.
+- Procedencia de la mascota: `assets/mascot/PROVENANCE.txt` y `assets/mascot/PIXEL-PROVENANCE.json`.
 - Reglas de desarrollo: `AGENTS.md`.
