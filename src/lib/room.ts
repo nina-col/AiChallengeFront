@@ -225,7 +225,8 @@ export function useCurrentPlace(): Space | null | undefined {
 /**
  * Qué se ve donde antes iba "Tu escritorio" 2D: `room`, el cuarto del lugar; `desk`, la escena 2D
  * (sin lugar, sin conexión o con un cuarto de una versión más nueva de la app; en modo concentración
- * no dibuja nada); `wait` mientras se decide o si las escenas están ocultas.
+ * o con las escenas ocultas no dibuja nada, pero el aviso del objeto nuevo y el sonido siguen);
+ * `wait` mientras se decide.
  */
 export type RoomScene = 'room' | 'desk' | 'wait';
 
@@ -239,9 +240,9 @@ export function usePlaceRoom(place: Pick<Space, 'id' | 'name'> | null | undefine
   const { settings } = useSettings();
   const room = useRoom(place?.id ?? '');
   let scene: RoomScene;
-  if (!settings.showDesk || settings.focusMode) scene = 'wait';
+  if (!settings.showDesk || settings.focusMode) scene = 'desk';
   else if (place === undefined) scene = 'wait';
-  else if (!place || room.needsUpdate || settings.focusMode) scene = 'desk';
+  else if (!place || room.needsUpdate) scene = 'desk';
   else if (room.layout) scene = 'room';
   else scene = room.isPending ? 'wait' : 'desk';
   const label =

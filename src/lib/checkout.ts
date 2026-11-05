@@ -22,6 +22,9 @@ export type SavedOutcome = OutcomeResult & { newItem?: ItemId; room?: RoomArriva
 /** Lo más que el resultado espera al cuarto. Si tarda más, el objeto llega igual, sin su animación. */
 const ROOM_WAIT_MS = 2500;
 
+/** Lo más que guardar espera a saber qué se había probado, si todavía no estaba en memoria. */
+const PROGRESS_WAIT_MS = 1500;
+
 /** `promise` o, si falla o tarda más de `ms`, `fallback`. Lo que tarda sigue en segundo plano. */
 function within<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
   return new Promise((resolve) => {
@@ -48,13 +51,28 @@ function progressAfter(before: Progress, adjustment: Adjustment | null): Progres
   return { trials: before.trials + 1, tried: isNew ? [...before.tried, adjustment.id] : before.tried };
 }
 
+/**
+ * Lo que se había probado antes de guardar, para saber si el objeto es nuevo (después ya incluiría
+ * esta prueba). Hoy ya no lo trae: si no está en memoria (la app se abrió desde el aviso), se pide,
+ * pero guardar no espera más de `PROGRESS_WAIT_MS`. Sin respuesta, el objeto llega sin decir "nuevo".
+ */
+export async function progressBefore(): Promise<Progress | undefined> {
+  return (
+    queryClient.getQueryData<Progress>(keys.progress) ??
+    within<Progress | undefined>(
+      queryClient.ensureQueryData({ queryKey: keys.progress, queryFn: api.progress }),
+      PROGRESS_WAIT_MS,
+      undefined,
+    )
+  );
+}
+
 /** Guarda "cómo te fue", quita el aviso pendiente y muestra el resultado. */
 export function useSaveOutcome(id: string) {
   return useMutation({
     mutationFn: async (answers: { discomfort: number; effort: number; attribution: Response; score?: number | null }): Promise<SavedOutcome> => {
       // Lo que tenía antes, para saber si el objeto es nuevo. No importa si ayudó.
-      // Decoration is optional: never delay the actual save waiting for a progress request.
-      const before = queryClient.getQueryData<Progress>(keys.progress);
+      const before = await progressBefore();
       const result = await api.outcome(id, answers);
       const adjustment = result.checkin.adjustment;
       let ratingSaved = true;

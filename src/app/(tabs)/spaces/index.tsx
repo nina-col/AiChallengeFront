@@ -31,7 +31,7 @@ export default function Spaces() {
   });
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={{ padding: 24, gap: 24, maxWidth: 640, width: '100%', alignSelf: 'center', paddingBottom: 48 }}>
+    <ScrollView contentInsetAdjustmentBehavior="automatic" style={{ backgroundColor: theme.background }} contentContainerStyle={{ padding: 24, gap: 24, maxWidth: 640, width: '100%', alignSelf: 'center', paddingBottom: 48 }}>
       <ThemedText themeColor="textSecondary">{copy.spacesHint}</ThemedText>
       <QueryFeedback query={spaces} />
       {spaces.isSuccess && !spaces.data.length ? <ThemedText type="headline">{copy.emptySpaces}</ThemedText> : null}

@@ -121,7 +121,7 @@ export function DeskScene({ items, highlight, settle, interactive, accessibility
   const sway = twitch === 'sway';
   const unit = width / SCENE.width;
 
-  if (settings.focusMode) return null;
+  if (settings.focusMode || !settings.showDesk) return null;
 
   const content = (
     <View

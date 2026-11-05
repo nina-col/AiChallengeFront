@@ -60,8 +60,6 @@ Sustituir la dirección por la IP local de la computadora que ejecuta el backend
 
 Seguir el README de `AiChallengeBack` para iniciar PostgreSQL y la API. Comprobar `/health` antes del primer check-in.
 
-**Compatibilidad entre snapshots:** este front declara llamadas a memoria, reinicio y cuarto de un lugar (`/v1/spaces/:id/memory`, `/reset` y `/room`) que no están expuestas en el router del snapshot actual de `AiChallengeBack`. Para probar esas funciones se necesita una versión compatible del backend; coordinarla en el monorepo y no asumir que ambos espejos están sincronizados.
-
 ## Verificación
 
 ```bash
