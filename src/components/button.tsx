@@ -8,6 +8,7 @@ type Variant = 'primary' | 'secondary' | 'plain';
 
 type ButtonProps = {
   title: string;
+  description?: string;
   onPress?: () => void;
   variant?: Variant;
   disabled?: boolean;
@@ -21,6 +22,7 @@ type ButtonProps = {
 /** Botón de la app. Al tocar se atenúa al instante (sin "aplastarse") y mide al menos 52 pt. */
 export function Button({
   title,
+  description,
   onPress,
   variant = 'primary',
   disabled,
@@ -40,7 +42,7 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityLabel={accessibilityLabel ?? (description ? `${title}. ${description}` : title)}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}
@@ -53,9 +55,12 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={colors.text} />
       ) : (
-        <ThemedText type="bodyStrong" style={[styles.label, { color: colors.text }]}>
-          {title}
-        </ThemedText>
+        <>
+          <ThemedText type="bodyStrong" style={[styles.label, { color: colors.text }]}>
+            {title}
+          </ThemedText>
+          {description ? <ThemedText type="footnote" style={[styles.label, { color: colors.text, marginTop: Spacing.one }]}>{description}</ThemedText> : null}
+        </>
       )}
     </Pressable>
   );

@@ -141,7 +141,9 @@ const en: Strings = {
     tile: 'My energy',
     title: 'How much energy do you have right now?',
     hint: "Pick without overthinking it. It stays on this phone only.",
-    levels: ['Almost none', 'Low', 'Okay', 'Good', 'Very good'],
+    levels: ['Very little energy', 'Low energy', 'Some energy', 'Quite a bit of energy', 'Lots of energy'],
+    unsure: 'I’m not sure',
+    unsureHint: 'It’s okay not to know. You can return and choose a level whenever you like.',
     actions: [
       'Stop for a moment and find someone you trust for support.',
       'Take a break now, even a short one.',

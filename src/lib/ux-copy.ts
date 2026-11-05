@@ -1,7 +1,10 @@
 import { useLocale } from '@/i18n';
 const es = {
   finishWelcome: 'Completar bienvenida', sessionRequired: 'Completa la bienvenida para guardar tus pruebas.',
-  spaces: 'Espacios', home: '¿Qué necesitas ahora?', environment: 'Mi entorno', internal: 'Cómo estoy', unsure: 'No estoy seguro',
+  spaces: 'Espacios', home: '¿Por dónde empezamos?', environment: 'Revisar mi entorno', internal: 'Revisar cómo me siento', unsure: 'Ayúdame a identificarlo',
+  environmentDescription: 'Ruido, luz y otras molestias a tu alrededor.',
+  internalDescription: 'Energía, concentración y necesidades físicas.',
+  unsureDescription: 'Una pregunta para orientarte.',
   pause: 'Tomar una pausa', summary: 'Tu resumen', spacesHint: 'Tus lugares y los ajustes que has probado en cada uno.',
   emptySpaces: 'Aún no tienes espacios', addSpace: 'Añadir espacio', spaceName: 'Nombre del espacio', openSpace: 'Ver espacio',
   roomHint: 'Los objetos representan cosas probadas, no éxitos. Consulta qué ayudó en el historial del espacio.',
@@ -16,7 +19,10 @@ const es = {
 };
 const en: typeof es = {
   finishWelcome: 'Complete welcome', sessionRequired: 'Complete the welcome to save your trials.',
-  spaces: 'Spaces', home: 'What do you need now?', environment: 'My surroundings', internal: 'How I feel', unsure: 'I’m not sure',
+  spaces: 'Spaces', home: 'Where shall we start?', environment: 'Check my surroundings', internal: 'Check how I feel', unsure: 'Help me figure it out',
+  environmentDescription: 'Noise, light and other discomforts around you.',
+  internalDescription: 'Energy, focus and physical needs.',
+  unsureDescription: 'One question to help you find a starting point.',
   pause: 'Take a break', summary: 'Your summary', spacesHint: 'Your places and the adjustments you have tried in each one.',
   emptySpaces: 'No spaces yet', addSpace: 'Add a space', spaceName: 'Space name', openSpace: 'Open space',
   roomHint: 'Objects represent things tried, not successes. Check what helped in the space’s history.',

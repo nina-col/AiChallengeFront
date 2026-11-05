@@ -1,3 +1,4 @@
+import { CheckinActions } from '@/components/checkin-actions';
 import { router } from 'expo-router';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
@@ -26,13 +27,9 @@ export default function Today() {
       refreshControl={<RefreshControl refreshing={trying.isRefetching} onRefresh={() => { trying.refetch(); }} />}>
       <View style={{ alignItems: 'center', gap: 12 }}>
         <BeaverMascot pose="coffee" size={96} interactive />
-        <ThemedText type="headline">{copy.home}</ThemedText>
+        <ThemedText type="body" themeColor="textSecondary" accessibilityRole="header" style={{ textAlign: 'center' }}>{copy.home}</ThemedText>
       </View>
-      <View style={{ gap: 12 }}>
-        <Button title={copy.environment} onPress={() => router.push('/checkin/areas')} />
-        <Button title={copy.internal} variant="secondary" onPress={() => router.push('/checkin/internal')} />
-        <Button title={copy.unsure} variant="secondary" onPress={() => router.push('/checkin/orient')} />
-      </View>
+      <CheckinActions />
       <QueryFeedback query={trying} />
       {trying.data?.length ? (
         <Group title={t.today.tryingTitle}>

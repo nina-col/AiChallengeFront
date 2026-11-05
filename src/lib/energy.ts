@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
  * registro simplemente no tiene barras.
  */
 export type Slot = 'morning' | 'midday' | 'afternoon';
+/** level 0 means unsure, not low energy. */
 export type EnergyEntry = { date: string; slot: Slot; level: number };
 
 export const SLOTS: Slot[] = ['morning', 'midday', 'afternoon'];
@@ -42,7 +43,7 @@ export function parseEntries(raw: string | null): EnergyEntry[] {
     const data = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(data)) return [];
     return data.filter(
-      (e) => typeof e?.date === 'string' && SLOTS.includes(e?.slot) && Number.isInteger(e?.level) && e.level >= 1 && e.level <= 5,
+      (e) => typeof e?.date === 'string' && SLOTS.includes(e?.slot) && Number.isInteger(e?.level) && e.level >= 0 && e.level <= 5,
     );
   } catch {
     return [];

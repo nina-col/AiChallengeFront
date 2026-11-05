@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { EnergyHearts } from '@/components/energy-hearts';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { Notice } from '@/components/notice';
@@ -17,7 +18,7 @@ import { dayKey, lastDays, SLOTS, slotFor, useEnergy } from '@/lib/energy';
 const POINT = 7;
 
 /**
- * "¿Cuánta energía tienes ahora?": cinco opciones con cucharas, una acción y los últimos días. Se
+ * "¿Cuánta energía tienes ahora?": cinco opciones con corazones, una acción y los últimos días. Se
  * queda en el teléfono. Se corrige tocando otra opción; nunca se pide ni se reclama un registro.
  */
 export default function Energy() {
@@ -41,17 +42,15 @@ export default function Energy() {
         hint={t.energy.hint}
         footer={
           <>
-            {saved !== undefined && saved <= 3 ? (
+            {saved !== undefined && saved > 0 && saved <= 3 ? (
               <Button variant="secondary" title={t.energy.takeBreak} onPress={() => router.replace('/zen')} />
             ) : null}
             <Button title={t.energy.done} onPress={close} />
           </>
         }>
-        <ChoiceList
-          options={t.energy.levels.map((label, i) => ({ id: String(i + 1), label, art: 'spoon' as const, artCount: i + 1 })).reverse()}
-          selected={saved ? [String(saved)] : []}
-          onSelect={(id) => record({ date: today, slot, level: Number(id) })}
-        />
+        <EnergyHearts labels={t.energy.levels} value={saved} onChange={(level) => record({ date: today, slot, level })} />
+        <ChoiceList options={[{ id: '0', label: t.energy.unsure }]} selected={saved === 0 ? ['0'] : []} onSelect={() => record({ date: today, slot, level: 0 })} />
+        {saved === 0 ? <Notice text={t.energy.unsureHint} /> : null}
         {saved ? <Notice text={t.energy.actions[saved - 1]} /> : null}
 
         <View style={styles.week}>
@@ -62,7 +61,7 @@ export default function Energy() {
             <View style={[styles.chart, { backgroundColor: theme.backgroundElement }]}>
               {days.map((day) => {
                 const parts = day.levels.flatMap((level, i) =>
-                  level ? [t.energy.slotValue(t.energy.slots[SLOTS[i]], t.energy.levels[level - 1])] : [],
+                  level !== null ? [t.energy.slotValue(t.energy.slots[SLOTS[i]], level === 0 ? t.energy.unsure : t.energy.levels[level - 1])] : [],
                 );
                 return (
                   <View
@@ -85,7 +84,7 @@ export default function Energy() {
                       ))}
                     </View>
                     <ThemedText type="footnote" themeColor="textSecondary">
-                      {weekday(day.date)}
+                      {weekday(day.date)}{day.levels.includes(0) ? ' ?' : ''}
                     </ThemedText>
                   </View>
                 );

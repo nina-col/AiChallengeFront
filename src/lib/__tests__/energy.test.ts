@@ -24,3 +24,11 @@ describe('mi energía', () => {
     expect(parseEntries(JSON.stringify([entry('2026-10-30', 'morning', 9), { nada: 1 }, entry('2026-10-30', 'midday', 3)]))).toEqual([entry('2026-10-30', 'midday', 3)]);
   });
 });
+
+test('no estoy seguro se conserva separado de energía baja y de un día sin registro', () => {
+  const uncertain = { date: '2026-11-04', slot: 'afternoon' as const, level: 0 };
+  const records = parseEntries(JSON.stringify([uncertain]));
+  expect(records).toEqual([uncertain]);
+  expect(lastDays(records, new Date(2026, 10, 4), 1)[0].levels).toEqual([null, null, 0]);
+  expect(recordEnergy(records, { ...uncertain, level: 5 })).toEqual([{ ...uncertain, level: 5 }]);
+});

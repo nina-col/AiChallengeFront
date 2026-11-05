@@ -145,7 +145,9 @@ const es = {
     tile: 'Mi energía',
     title: '¿Cuánta energía tienes ahora?',
     hint: 'Elige sin pensarlo mucho. Se queda solo en este teléfono.',
-    levels: ['Casi nada', 'Poca', 'Regular', 'Bien', 'Muy bien'],
+    levels: ['Muy poca energía', 'Poca energía', 'Algo de energía', 'Bastante energía', 'Mucha energía'],
+    unsure: 'No estoy seguro',
+    unsureHint: 'Está bien no saberlo. Puedes volver y elegir un nivel cuando quieras.',
     actions: [
       'Detente un momento y busca a alguien de confianza que te apoye.',
       'Haz una pausa ahora, aunque sea corta.',
