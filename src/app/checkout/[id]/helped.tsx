@@ -1,37 +1,24 @@
 import { useState } from 'react';
-import { Button } from '@/components/button';
 import { useLocalSearchParams } from 'expo-router';
-
+import { Button } from '@/components/button';
+import { RatingScale } from '@/components/rating-scale';
 import { ChoiceList } from '@/components/choice-list';
 import { Notice } from '@/components/notice';
+import { SaveFeedback } from '@/components/save-feedback';
 import { StepScreen } from '@/components/step-screen';
+import { ThemedText } from '@/components/themed-text';
 import { useT } from '@/i18n';
 import { useSaveOutcome } from '@/lib/checkout';
-import type { Response } from '@/lib/types';
-
-/** La opinión de la persona manda: si dice que no ayudó, no cuenta como éxito. */
+import { ratingAttribution } from '@/lib/helpfulness';
+import { useUxCopy } from '@/lib/ux-copy';
 export default function CheckoutHelped() {
-  const t = useT();
-  const [selected, setSelected] = useState<Response>();
-  const { id, discomfort, effort } = useLocalSearchParams<{ id: string; discomfort: string; effort: string }>();
-  const save = useSaveOutcome(id);
-
-  const options = [
-    { id: 'yes', label: t.checkout.yes },
-    { id: 'no', label: t.checkout.no },
-    { id: 'unsure', label: t.checkout.unsure },
-  ];
-
-  return (
-    <StepScreen title={t.checkout.helpedTitle}
-      footer={<Button title={t.common.next} disabled={!selected} loading={save.isPending} onPress={() => selected && save.mutate({ discomfort: Number(discomfort), effort: Number(effort), attribution: selected })} />}>
-      <ChoiceList
-        options={options}
-        selected={selected ? [selected] : []}
-        disabled={save.isPending}
-        onSelect={(value) => setSelected(value as Response)}
-      />
-      {save.isError ? <Notice text={t.common.somethingFailed} /> : null}
-    </StepScreen>
-  );
+ const t=useT(); const copy=useUxCopy(); const [score,setScore]=useState<number|null>();
+ const {id,discomfort,effort}=useLocalSearchParams<{id:string;discomfort:string;effort:string}>();const save=useSaveOutcome(id);
+ return <StepScreen title={copy.helpful} hint={copy.ratingHint} footer={<Button title={copy.save} disabled={score===undefined} loading={save.isPending} onPress={()=>score!==undefined && save.mutate({discomfort:Number(discomfort),effort:Number(effort),attribution:ratingAttribution(score),score})}/>}>
+  <RatingScale labels={copy.levels} value={score ?? undefined} onChange={setScore} disabled={save.isPending} />
+  <ChoiceList options={[{id:"unknown",label:copy.unknown}]} selected={score===null?["unknown"]:[]} disabled={save.isPending} onSelect={()=>setScore(null)} />
+  <ThemedText type="footnote" themeColor="textSecondary">{copy.ratingStorageHint}</ThemedText>
+  {save.isPending?<SaveFeedback pending/>:null}
+  {save.isError?<Notice text={t.common.somethingFailed}/>:null}
+ </StepScreen>;
 }

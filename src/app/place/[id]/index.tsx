@@ -1,3 +1,5 @@
+import { SaveNotice } from '@/components/save-notice';
+import { useUxCopy } from '@/lib/ux-copy';
 import { useMutation } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -28,6 +30,7 @@ import { useSettings } from '@/lib/settings';
  */
 export default function Place() {
   const t = useT();
+  const copy = useUxCopy();
   const theme = useTheme();
   const locale = useLocale();
   const labels = useLabels();
@@ -41,7 +44,7 @@ export default function Place() {
   const blocked = new Set((data?.blocked ?? []).map((a) => a.id));
   const pinned = room.layout?.pinned ?? [];
   // En modo concentración no hay escenas: solo el texto, que dice lo mismo.
-  const showRoom = settings.placeView === 'room' && !settings.focusMode && !!room.layout && !room.needsUpdate;
+  const showRoom = settings.placeView === 'room' && settings.showDesk && !settings.focusMode && !!room.layout && !room.needsUpdate;
   const typeLabel = (type: string) => MANIFEST.types[type]?.label[locale] ?? type;
 
   // Lo que se sabe del objeto elegido: sus ajustes probados aquí, con números reales.
@@ -81,6 +84,7 @@ export default function Place() {
       contentInsetAdjustmentBehavior="automatic"
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={styles.content}>
+      <SaveNotice />
       <QueryFeedback query={memory} />
 
       {data ? (
@@ -102,7 +106,7 @@ export default function Place() {
                 { id: 'list', label: t.room.viewList },
               ]}
               selected={settings.placeView}
-              onSelect={(view) => update({ placeView: view as 'room' | 'list' })}
+              onSelect={(view) => update({ placeView: view as 'room' | 'list', ...(view === 'room' ? { showDesk: true } : {}) })}
             />
           )}
 
@@ -175,6 +179,7 @@ export default function Place() {
             </Group>
           ) : null}
 
+          <ThemedText type="footnote" themeColor="textSecondary">{copy.roomHint}</ThemedText>
           {data.tried.length ? (
             <Group title={t.place.triedTitle} footer={t.place.triedFooter}>
               {data.tried.map((entry, index) => (

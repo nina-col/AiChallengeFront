@@ -12,7 +12,7 @@ export function selectedDomainIds(selected: readonly string[] | undefined, avail
 }
 
 export function checkinOrder(askPlace: boolean, domains: readonly string[]) {
-  return ['task', 'feeling', ...(askPlace ? ['place'] : []), 'discomfort', 'effort', 'scan', ...domains];
+  return ['task', ...(askPlace ? ['place'] : []), 'discomfort', 'scan', ...domains];
 }
 
 /** Lo cognitivo no pregunta por el entorno: el esfuerzo es la medida, antes y después. */

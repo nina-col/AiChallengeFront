@@ -1,3 +1,4 @@
+import { SaveNotice } from '@/components/save-notice';
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,6 +39,7 @@ export function StepScreen({ step, art, title, hint, children, footer }: StepScr
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
         contentContainerStyle={styles.content}>
+        <SaveNotice />
         <View style={styles.heading}>
           {step ? <StepProgress number={step.number} total={step.total} label={step.label} /> : null}
           {art ? <PixelIcon name={art} size={80} /> : null}

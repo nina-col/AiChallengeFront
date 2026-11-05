@@ -1,3 +1,6 @@
+import { useUxCopy } from '@/lib/ux-copy';
+import { Notice } from '@/components/notice';
+import { SaveFeedback } from '@/components/save-feedback';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
@@ -33,6 +36,7 @@ import { useSettings } from '@/lib/settings';
  */
 export default function CheckoutResult() {
   const t = useT();
+  const copy = useUxCopy();
   const locale = useLocale();
   const labels = useLabels();
   const level = useMotionLevel();
@@ -102,6 +106,8 @@ export default function CheckoutResult() {
     <StepScreen
       title={title}
       footer={<Button title={t.common.backToToday} onPress={() => router.dismissTo('/today')} />}>
+      <SaveFeedback />
+      {data.ratingSaved === false ? <Notice text={copy.ratingFailed} /> : null}
       <Animated.View entering={contentEntering(level)} style={styles.body}>
         {lines.map((line) => (
           <ThemedText key={line}>{line}</ThemedText>

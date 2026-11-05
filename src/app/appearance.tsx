@@ -1,3 +1,4 @@
+import { SaveFeedback } from '@/components/save-feedback';
 import { router, usePreventRemove } from 'expo-router';
 import { useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, View, useWindowDimensions } from 'react-native';
@@ -112,6 +113,7 @@ export default function AppearanceScreen() {
         <ThemedText type="footnote" themeColor="textSecondary">{t.appearance.restoreHint}</ThemedText>
       </ScrollView>
       <ScrollView style={{ height: actionsHeight, flexGrow: 0, flexShrink: 0 }} contentContainerStyle={[styles.actions, { borderColor: theme.separator }]}>
+        {saving ? <SaveFeedback pending /> : null}
         {failed ? <Notice text={t.appearance.saveError} /> : null}
         <Button title={t.appearance.save} loading={saving} onPress={save} />
         <Button title={t.appearance.cancel} variant="plain" disabled={saving} onPress={close} />

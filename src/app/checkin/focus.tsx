@@ -1,3 +1,4 @@
+import { SaveFeedback } from '@/components/save-feedback';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { Notice } from '@/components/notice';
@@ -31,6 +32,7 @@ export default function Focus() {
           onAction={() => draft.focus && submit.mutate(toNewCheckin(draft, draft.focus))}
         />
       ) : null}
+      {submit.isPending ? <SaveFeedback pending /> : null}
     </StepScreen>
   );
 }

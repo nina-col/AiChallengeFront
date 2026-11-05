@@ -1,3 +1,4 @@
+import { confirmSaved } from '@/lib/save-notice';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
@@ -72,6 +73,7 @@ export function useSaveRoom(spaceId: string) {
     onSuccess: ({ revision }, { layout }) => {
       const next: StoredRoom = { revision, layout };
       queryClient.setQueryData(keys.room(spaceId), next);
+      confirmSaved();
     },
     // Si otra pantalla guardó antes, se trae lo del servidor para no pisarlo.
     onError: (error) => {
@@ -223,7 +225,7 @@ export function useCurrentPlace(): Space | null | undefined {
 /**
  * Qué se ve donde antes iba "Tu escritorio" 2D: `room`, el cuarto del lugar; `desk`, la escena 2D
  * (sin lugar, sin conexión o con un cuarto de una versión más nueva de la app; en modo concentración
- * no dibuja nada); `wait` mientras se sabe, para no saltar de una escena a la otra.
+ * no dibuja nada); `wait` mientras se decide o si las escenas están ocultas.
  */
 export type RoomScene = 'room' | 'desk' | 'wait';
 
@@ -237,7 +239,8 @@ export function usePlaceRoom(place: Pick<Space, 'id' | 'name'> | null | undefine
   const { settings } = useSettings();
   const room = useRoom(place?.id ?? '');
   let scene: RoomScene;
-  if (place === undefined) scene = 'wait';
+  if (!settings.showDesk || settings.focusMode) scene = 'wait';
+  else if (place === undefined) scene = 'wait';
   else if (!place || room.needsUpdate || settings.focusMode) scene = 'desk';
   else if (room.layout) scene = 'room';
   else scene = room.isPending ? 'wait' : 'desk';

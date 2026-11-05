@@ -1,3 +1,4 @@
+import { SaveFeedback } from '@/components/save-feedback';
 import { useState } from 'react';
 import { Button } from '@/components/button';
 import { useMutation } from '@tanstack/react-query';
@@ -54,6 +55,7 @@ export default function Reminder() {
         onSelect={setSelected}
       />
       {accept.isError ? <Notice text={t.common.somethingFailed} /> : null}
+      {accept.isPending ? <SaveFeedback pending /> : null}
     </StepScreen>
   );
 }

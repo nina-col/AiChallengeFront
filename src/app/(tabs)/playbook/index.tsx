@@ -1,3 +1,5 @@
+import { latestRating, useRatings } from '@/lib/helpfulness';
+import { useUxCopy } from '@/lib/ux-copy';
 import { QueryFeedback } from '@/components/query-feedback';
 import { router } from 'expo-router';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -15,6 +17,8 @@ import type { PlaybookEntry } from '@/lib/types';
 /** Lo que ha ayudado, agrupado por tarea y lugar, con cuántas veces se probó. */
 export default function Playbook() {
   const t = useT();
+  const copy = useUxCopy();
+  const ratings = useRatings();
   const theme = useTheme();
   const labels = useLabels();
   const playbook = usePlaybook();
@@ -58,12 +62,16 @@ export default function Playbook() {
         const title = `${labels.task(first.task)} · ${first.space?.name ?? t.playbook.anyPlace}`;
         return (
           <Group key={`${first.task}|${first.space?.id}`} title={title}>
-            {entries.map((entry, index) => (
+            {entries.map((entry, index) => {
+              const rating = latestRating(ratings.data, entry.adjustment.id, entry.task, entry.space?.id ?? null);
+              return (
               <GroupRow key={`${entry.stimulus}|${entry.adjustment.id}`} first={index === 0}>
                 <ThemedText type="bodyStrong">{entry.adjustment.title}</ThemedText>
                 <ThemedText type="footnote" themeColor="textSecondary">
                   {t.playbook.forStimulus(labels.stimulus(entry.stimulus))}
                 </ThemedText>
+                <ThemedText type="bodyStrong">{rating ? `${copy.personalRating}: ${rating.score === null ? copy.unknown : `${copy.levels[rating.score - 1]} · ${rating.score}/5`}` : copy.noRating}</ThemedText>
+                <ThemedText type="footnote" themeColor="textSecondary">{rating ? copy.localRating : copy.legacy}</ThemedText>
                 <ThemedText type="footnote">{t.playbook.evidence(entry.helped, entry.trials)}</ThemedText>
                 <Button
                   variant="plain"
@@ -84,10 +92,12 @@ export default function Playbook() {
                   }
                 />
               </GroupRow>
-            ))}
+            );})}
           </Group>
         );
       })}
+      <Button title={t.energy.tile} variant="secondary" onPress={() => router.push('/energy')} />
+      <Button title={t.strategies.tile} variant="plain" onPress={() => router.push('/strategies')} />
     </ScrollView>
   );
 }

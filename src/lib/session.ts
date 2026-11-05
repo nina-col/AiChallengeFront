@@ -1,3 +1,4 @@
+import { clearRatings } from '@/lib/helpfulness';
 import * as Crypto from 'expo-crypto';
 import * as SecureStore from 'expo-secure-store';
 
@@ -26,4 +27,5 @@ export async function createDeviceKey(): Promise<string> {
 export async function forgetDeviceKey(): Promise<void> {
   cached = null;
   await SecureStore.deleteItemAsync(KEY_NAME, OPTIONS);
+  await clearRatings();
 }

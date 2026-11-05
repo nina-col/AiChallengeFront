@@ -29,7 +29,7 @@ export function useCheckinSteps() {
   const sensory = (catalog.data?.domains.map((d) => d.id) ?? [...DOMAIN_IDS]).filter((id) => id !== INNER_DOMAIN);
   const domains = inner ? [INNER_DOMAIN] : selectedDomainIds(draft.selectedDomains, sensory);
   // 'scan' (foto y sonido) es opcional; sus pantallas internas no cuentan como pasos.
-  const order = repeat ? ['task', 'feeling', 'discomfort', 'effort'] : inner ? innerOrder(askPlace) : checkinOrder(askPlace, domains);
+  const order = repeat ? ['task', 'discomfort'] : inner ? innerOrder(askPlace) : checkinOrder(askPlace, domains);
 
   return {
     ready: spaces.isSuccess && catalog.isSuccess,

@@ -1,3 +1,4 @@
+import { confirmSaved } from '@/lib/save-notice';
 import { APPEARANCE_DEFAULTS, appearanceFrom, type Appearance } from '@/lib/appearance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
@@ -102,6 +103,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current.current, ...patch }));
       current.current = { ...current.current, ...patch };
       setSettings(current.current);
+      confirmSaved();
     });
     writes.current = operation;
     await operation;

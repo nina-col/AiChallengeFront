@@ -1,3 +1,4 @@
+import { SaveFeedback } from '@/components/save-feedback';
 import { useState } from 'react';
 import { STIMULUS_ART } from '@/lib/art';
 import { useMutation } from '@tanstack/react-query';
@@ -53,7 +54,7 @@ export default function ProposalScreen() {
             <Button title={t.common.backToToday} onPress={() => router.dismissTo('/today')} />
           </>
         }
-      />
+      ><SaveFeedback /></StepScreen>
     );
   }
 
@@ -113,6 +114,7 @@ export default function ProposalScreen() {
   return (
     <StepScreen step={{ number: 2, total: 2, label: t.checkin.choosePhase }} art={STIMULUS_ART[result.checkin.focus_stimulus ?? '']} title={adjustment.title} footer={footer}>
       {/* Fundido breve al cambiar de sugerencia: muestra que es otra idea. Sin movimiento si se pidió. */}
+      <SaveFeedback />
       <Animated.View
         key={adjustment.id}
         entering={contentEntering(level)}

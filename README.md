@@ -118,3 +118,18 @@ Estas decisiones reflejan la intención del diseño; su utilidad y accesibilidad
 - Fuentes y licencias: `assets/fonts/SOURCES.txt` y archivos OFL junto a las fuentes.
 - Procedencia de la mascota: `assets/mascot/PROVENANCE.txt` y `assets/mascot/PIXEL-PROVENANCE.json`.
 - Reglas de desarrollo: `AGENTS.md`.
+
+
+## Iteración de UX: recorridos cortos y resultados claros
+
+- Hoy ofrece tres acciones principales: «Mi entorno», «Cómo estoy» y «No estoy seguro». Las pruebas en curso conservan su acceso para registrar resultados.
+- Los lugares y el acceso a sus cuartos están en la pestaña Espacios. El cuarto representa el espacio; no debe interpretarse como una valoración de eficacia. El historial conserva cuántas pruebas ayudaron y cuántas se hicieron.
+- El recorrido sensorial agrupa actividad y estado de ánimo, y agrupa molestia y esfuerzo. Conserva ambos datos y las áreas elegidas; con un único espacio se evita preguntarlo de nuevo. La ruta interna conserva su recorrido específico.
+- Las escalas usan cinco botones grandes y etiquetados. La pregunta de utilidad va de Nada a Mucho y conserva «Todavía no lo sé» como respuesta independiente, sin nivel preseleccionado.
+- La intensidad exacta se guarda **localmente en el dispositivo**, asociada a la prueba, estrategia, tarea y espacio. La API actual recibe `no` para Nada, `yes` para los niveles de Poco a Mucho y `unsure` para incertidumbre. Esta compatibilidad no convierte registros antiguos en valoraciones de cinco niveles ni sincroniza esa intensidad entre dispositivos. Al borrar la cuenta se elimina también esta información local.
+- Lo que me sirve muestra la última intensidad local del mismo contexto cuando existe, junto con la evidencia de la API. Si no existe, indica que no hay valoración de intensidad.
+- Al guardar se muestra estado de espera y, después de confirmarse la operación, «Guardado». Las entradas visuales respetan movimiento reducido. Un fallo de persistencia local de intensidad se informa sin volver a enviar un resultado remoto que ya se guardó.
+
+Verificación adicional: `src/lib/__tests__/helpfulness.test.ts` cubre la interpretación de la escala, separación de contextos, validación e idempotencia del guardado local.
+
+La vista web utiliza una sesión propia en `sessionStorage` para poder probar los recorridos; no comparte la sesión del teléfono y no conserva la llave al cerrar la sesión del navegador. La app móvil continúa usando SecureStore cifrado. Completar la bienvenida sigue siendo necesario antes de guardar datos.

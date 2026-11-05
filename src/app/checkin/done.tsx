@@ -1,3 +1,4 @@
+import { SaveFeedback } from '@/components/save-feedback';
 import { router } from 'expo-router';
 
 import { Button } from '@/components/button';
@@ -40,6 +41,7 @@ export default function Done() {
       hint={t.reminder.doneBody}
       footer={<Button title={t.common.backToToday} onPress={() => router.dismissTo('/today')} />}>
       {plan ? <ThemedText>{plan}</ThemedText> : null}
+      <SaveFeedback />
       {room.scene === 'room' && room.layout ? (
         <RoomView layout={room.layout} modifiers={room.modifiers} settle onSettled={settled} accessibilityLabel={room.label} />
       ) : room.scene === 'desk' ? (

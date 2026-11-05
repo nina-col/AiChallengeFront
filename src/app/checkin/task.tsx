@@ -1,3 +1,4 @@
+import { ThemedText } from '@/components/themed-text';
 import { QueryFeedback } from '@/components/query-feedback';
 import { useState } from 'react';
 
@@ -5,7 +6,7 @@ import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { StepScreen } from '@/components/step-screen';
 import { useT } from '@/i18n';
-import { TASK_ART } from '@/lib/art';
+import { FEELING_ART, TASK_ART } from '@/lib/art';
 import { useCheckinDraft } from '@/lib/checkin-draft';
 import { useCheckinSteps } from '@/lib/checkin-steps';
 import { useCatalog } from '@/lib/queries';
@@ -25,8 +26,9 @@ export default function Task() {
 
   return (
     <StepScreen step={steps.progress('task')} title={t.checkin.taskTitle}
-      footer={<Button title={t.common.next} disabled={!draft.task} onPress={() => steps.goAfter('task')} />}>
+      footer={<Button title={t.common.next} disabled={!draft.task || (!draft.route && !draft.feeling) || !steps.ready} onPress={() => { if (steps.onlySpaceId) update({ spaceId: steps.onlySpaceId }); steps.goAfter('task'); }} />}>
       <QueryFeedback query={catalog} />
+      <QueryFeedback query={steps.spaces} />
       <ChoiceList
         options={visible.map((task) => ({ ...task, art: TASK_ART[task.id] }))}
         selected={draft.task ? [draft.task] : []}
@@ -37,6 +39,7 @@ export default function Task() {
       {!showAll && tasks.length > VISIBLE ? (
         <Button variant="plain" title={t.checkin.moreTasks} onPress={() => setShowAll(true)} />
       ) : null}
+      {draft.route !== 'inner' ? <><ThemedText type="headline" style={{ marginTop: 16 }}>{t.checkin.feelingTitle}</ThemedText><ChoiceList options={(catalog.data?.feelings ?? []).map((option) => ({ ...option, art: FEELING_ART[option.id] }))} selected={draft.feeling ? [draft.feeling] : []} onSelect={(feeling) => update({ feeling })} /></> : null}
     </StepScreen>
   );
 }

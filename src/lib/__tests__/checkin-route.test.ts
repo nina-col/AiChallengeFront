@@ -22,3 +22,10 @@ describe('lo cognitivo', () => {
     expect(sent.observations).toEqual([{ stimulus: 'hard_to_start', response: 'yes', source: 'question' }]);
   });
 });
+
+describe('recorrido sensorial agrupado', () => {
+  it('mantiene todas las áreas elegidas y elimina pantallas duplicadas', () => {
+    expect(checkinOrder(false, ['light'])).toEqual(['task', 'discomfort', 'scan', 'light']);
+    expect(checkinOrder(true, ['sound', 'body'])).toEqual(['task', 'place', 'discomfort', 'scan', 'sound', 'body']);
+  });
+});

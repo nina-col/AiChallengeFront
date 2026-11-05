@@ -1,3 +1,4 @@
+import { SaveFeedback } from '@/components/save-feedback';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { View } from 'react-native';
@@ -64,6 +65,8 @@ export default function Place() {
         />
       </View>
       {add.isError ? <Notice text={t.common.offline} /> : null}
+      {add.isPending ? <SaveFeedback pending /> : null}
+      {add.isSuccess ? <SaveFeedback /> : null}
     </StepScreen>
   );
 }
