@@ -1,9 +1,7 @@
-import { SaveFeedback } from '@/components/save-feedback';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { QueryFeedback } from '@/components/query-feedback';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { Notice } from '@/components/notice';
@@ -25,6 +23,7 @@ export default function Place() {
 
   const choose = (spaceId: string) => {
     update({ spaceId });
+    steps.goAfter('place');
   };
 
   const add = useMutation({
@@ -36,9 +35,7 @@ export default function Place() {
   });
 
   return (
-    <StepScreen step={steps.progress('place')} title={t.checkin.placeTitle}
-      footer={<Button title={t.common.next} disabled={!draft.spaceId || add.isPending} onPress={() => steps.goAfter('place')} />}>
-      <QueryFeedback query={spaces} />
+    <StepScreen step={steps.progress('place')} title={t.checkin.placeTitle}>
       {spaces.data?.length ? (
         <ChoiceList
           options={spaces.data.map((s) => ({ id: s.id, label: s.name }))}
@@ -65,8 +62,6 @@ export default function Place() {
         />
       </View>
       {add.isError ? <Notice text={t.common.offline} /> : null}
-      {add.isPending ? <SaveFeedback pending /> : null}
-      {add.isSuccess ? <SaveFeedback /> : null}
     </StepScreen>
   );
 }

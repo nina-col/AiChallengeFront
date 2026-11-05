@@ -1,12 +1,10 @@
-import { latestRating, useRatings } from '@/lib/helpfulness';
-import { useUxCopy } from '@/lib/ux-copy';
-import { QueryFeedback } from '@/components/query-feedback';
 import { router } from 'expo-router';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Group, GroupRow } from '@/components/group';
-import { BeaverMascot } from '@/components/beaver-mascot';
+import { Notice } from '@/components/notice';
+import { PixelScene } from '@/components/pixel-scene';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -17,8 +15,6 @@ import type { PlaybookEntry } from '@/lib/types';
 /** Lo que ha ayudado, agrupado por tarea y lugar, con cuántas veces se probó. */
 export default function Playbook() {
   const t = useT();
-  const copy = useUxCopy();
-  const ratings = useRatings();
   const theme = useTheme();
   const labels = useLabels();
   const playbook = usePlaybook();
@@ -42,18 +38,20 @@ export default function Playbook() {
           }}
         />
       }>
-      <QueryFeedback query={playbook} />
+      {playbook.isError ? (
+        <Notice text={t.common.offline} action={t.common.retry} onAction={playbook.refetch} />
+      ) : null}
 
       {playbook.isSuccess && groups.size === 0 ? (
         <View style={styles.empty}>
-          <BeaverMascot pose="notebook" size={128} />
+          <PixelScene size={96} />
           <ThemedText type="headline" style={styles.center}>
             {t.playbook.emptyTitle}
           </ThemedText>
           <ThemedText themeColor="textSecondary" style={styles.center}>
             {t.playbook.emptyBody}
           </ThemedText>
-          <Button title={t.pathway.startLabel} onPress={() => router.push('/checkin')} style={styles.cta} />
+          <Button title={t.today.start} onPress={() => router.push('/checkin/task')} style={styles.cta} />
         </View>
       ) : null}
 
@@ -62,16 +60,12 @@ export default function Playbook() {
         const title = `${labels.task(first.task)} · ${first.space?.name ?? t.playbook.anyPlace}`;
         return (
           <Group key={`${first.task}|${first.space?.id}`} title={title}>
-            {entries.map((entry, index) => {
-              const rating = latestRating(ratings.data, entry.adjustment.id, entry.task, entry.space?.id ?? null);
-              return (
+            {entries.map((entry, index) => (
               <GroupRow key={`${entry.stimulus}|${entry.adjustment.id}`} first={index === 0}>
                 <ThemedText type="bodyStrong">{entry.adjustment.title}</ThemedText>
                 <ThemedText type="footnote" themeColor="textSecondary">
                   {t.playbook.forStimulus(labels.stimulus(entry.stimulus))}
                 </ThemedText>
-                <ThemedText type="bodyStrong">{rating ? `${copy.personalRating}: ${rating.score === null ? copy.unknown : `${copy.levels[rating.score - 1]} · ${rating.score}/5`}` : copy.noRating}</ThemedText>
-                <ThemedText type="footnote" themeColor="textSecondary">{rating ? copy.localRating : copy.legacy}</ThemedText>
                 <ThemedText type="footnote">{t.playbook.evidence(entry.helped, entry.trials)}</ThemedText>
                 <Button
                   variant="plain"
@@ -92,12 +86,10 @@ export default function Playbook() {
                   }
                 />
               </GroupRow>
-            );})}
+            ))}
           </Group>
         );
       })}
-      <Button title={t.energy.tile} variant="secondary" onPress={() => router.push('/energy')} />
-      <Button title={t.strategies.tile} variant="plain" onPress={() => router.push('/strategies')} />
     </ScrollView>
   );
 }

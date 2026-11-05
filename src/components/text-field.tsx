@@ -1,17 +1,12 @@
-import { View, StyleSheet, TextInput, type TextInputProps } from 'react-native';
+import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, Type } from '@/constants/theme';
-import { useTypography } from '@/hooks/use-typography';
 import { useTheme } from '@/hooks/use-theme';
 
 /** Campo de texto con etiqueta accesible; nunca se borra lo escrito si algo falla. */
 export function TextField({ label, style, ...rest }: TextInputProps & { label: string }) {
   const theme = useTheme();
-  const typography = useTypography();
   return (
-    <View style={{ gap: Spacing.two }}>
-      <ThemedText type="callout">{label}</ThemedText>
     <TextInput
       accessibilityLabel={label}
       placeholderTextColor={theme.textSecondary}
@@ -19,11 +14,9 @@ export function TextField({ label, style, ...rest }: TextInputProps & { label: s
         styles.input,
         { backgroundColor: theme.backgroundElement, color: theme.text, borderColor: theme.separator },
         style,
-        typography,
       ]}
       {...rest}
     />
-    </View>
   );
 }
 

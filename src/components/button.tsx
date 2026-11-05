@@ -13,8 +13,6 @@ type ButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   accessibilityHint?: string;
-  /** Para VoiceOver cuando el título no se lee bien (por ejemplo, una flecha). */
-  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -26,7 +24,6 @@ export function Button({
   disabled,
   loading,
   accessibilityHint,
-  accessibilityLabel,
   style,
 }: ButtonProps) {
   const theme = useTheme();
@@ -40,7 +37,7 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityLabel={title}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}

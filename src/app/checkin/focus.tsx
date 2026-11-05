@@ -1,5 +1,3 @@
-import { SaveFeedback } from '@/components/save-feedback';
-import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { Notice } from '@/components/notice';
 import { StepScreen } from '@/components/step-screen';
@@ -18,21 +16,19 @@ export default function Focus() {
 
   function choose(focus: string) {
     update({ focus });
-
+    submit.mutate(toNewCheckin(draft, focus));
   }
 
   return (
-    <StepScreen step={{ number: 2, total: 2, label: t.checkin.choosePhase }} title={t.checkin.focusTitle} hint={t.checkin.focusHint}
-      footer={<Button title={t.checkin.seeSuggestion} disabled={!draft.focus} loading={submit.isPending} onPress={() => draft.focus && submit.mutate(toNewCheckin(draft, draft.focus))} />}>
-      <ChoiceList options={options} selected={draft.focus ? [draft.focus] : []} disabled={submit.isPending} onSelect={choose} />
+    <StepScreen title={t.checkin.focusTitle} hint={t.checkin.focusHint}>
+      <ChoiceList options={options} selected={draft.focus ? [draft.focus] : []} onSelect={choose} />
       {submit.isError ? (
         <Notice
           text={t.common.somethingFailed}
           action={t.common.retry}
-          onAction={() => draft.focus && submit.mutate(toNewCheckin(draft, draft.focus))}
+          onAction={() => draft.focus && choose(draft.focus)}
         />
       ) : null}
-      {submit.isPending ? <SaveFeedback pending /> : null}
     </StepScreen>
   );
 }

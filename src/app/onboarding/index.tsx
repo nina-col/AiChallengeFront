@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
-import { BeaverMascot } from '@/components/beaver-mascot';
+import { DeskScene } from '@/components/desk/desk-scene';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -14,21 +14,17 @@ export default function Welcome() {
   const theme = useTheme();
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.hero} style={styles.scroll}>
-        <BeaverMascot pose="welcome" size={192} />
+      <View style={styles.hero}>
+        {/* La metáfora de la app desde el primer momento: la onda del monitor se calma. */}
+        <DeskScene items={[]} settle accessibilityLabel={t.desk.label([])} style={styles.scene} />
         <ThemedText type="title" accessibilityRole="header">
           {t.onboarding.welcomeTitle}
-        </ThemedText>
-        <ThemedText type="headline" style={styles.body}>
-          {t.onboarding.mascotIntro}
         </ThemedText>
         <ThemedText themeColor="textSecondary" style={styles.body}>
           {t.onboarding.welcomeBody}
         </ThemedText>
-      </ScrollView>
+      </View>
       <View style={styles.footer}>
-        <Button variant="plain" title={t.pathway.zenLink} onPress={() => router.push('/zen')} />
-        <Button variant="plain" title={t.appearance.open} onPress={() => router.push('/appearance')} />
         <Button title={t.onboarding.start} onPress={() => router.push('/onboarding/how')} />
       </View>
     </SafeAreaView>
@@ -40,10 +36,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Spacing.three,
   },
-  scroll: { flex: 1 },
   hero: {
-    flexGrow: 1,
-    paddingVertical: Spacing.four,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.three,
@@ -52,8 +46,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     maxWidth: 340,
   },
+  scene: {
+    maxWidth: 420,
+    marginBottom: Spacing.three,
+  },
   footer: {
-    paddingTop: Spacing.three,
     width: '100%',
     maxWidth: MaxContentWidth,
     alignSelf: 'center',

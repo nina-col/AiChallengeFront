@@ -11,7 +11,6 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ITEMS, LAYERS, SCENE, type ItemId, type Sky, type Wave } from '@/components/desk/layers';
-import { useSettings } from '@/lib/settings';
 import { Motion, Radius } from '@/constants/theme';
 import { useFeedback, useMotionLevel } from '@/lib/feedback';
 
@@ -33,8 +32,7 @@ export const SETTLED_MS = SETTLE_FRAME_MS * (SETTLE.length - 1);
 /** Objetos que se dibujan como capa propia (la persiana va bajo la pared y la pantalla tenue es una paleta). */
 const LAYERED = (Object.keys(ITEMS) as ItemId[]).filter((id) => id !== 'blinds' && id !== 'screenDim');
 
-/** El cielo de la ventana según la hora del teléfono (también lo usa el cuarto isométrico). */
-export function skyFor(hour: number): Sky {
+function skyFor(hour: number): Sky {
   if (hour >= 5 && hour < 9) return 'dawn';
   if (hour >= 9 && hour < 17) return 'day';
   if (hour >= 17 && hour < 20) return 'dusk';
@@ -60,7 +58,6 @@ type DeskSceneProps = {
  * vez y con pausas.
  */
 export function DeskScene({ items, highlight, settle, interactive, accessibilityLabel, style }: DeskSceneProps) {
-  const { settings } = useSettings();
   const level = useMotionLevel();
   const feedback = useFeedback();
   const [sky] = useState(() => skyFor(new Date().getHours()));
@@ -120,8 +117,6 @@ export function DeskScene({ items, highlight, settle, interactive, accessibility
   const fanFrame = twitch === 'fan' ? 1 : 0;
   const sway = twitch === 'sway';
   const unit = width / SCENE.width;
-
-  if (settings.focusMode) return null;
 
   const content = (
     <View

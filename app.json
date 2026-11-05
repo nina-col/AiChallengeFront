@@ -2,7 +2,7 @@
   "expo": {
     "name": "SpaceEase",
     "slug": "spaceease",
-    "version": "1.6.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "spaceease",
@@ -50,9 +50,7 @@
           "microphonePermission": "SpaceEase escucha 10 segundos para notar voces o ruido de fondo. El sonido se analiza en el teléfono y se borra; nunca se envía."
         }
       ],
-      "expo-asset",
-      "expo-image",
-      "expo-web-browser"
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

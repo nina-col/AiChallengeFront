@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
-import { QueryFeedback } from '@/components/query-feedback';
 import { Button } from '@/components/button';
 import { ChoiceList } from '@/components/choice-list';
 import { Notice } from '@/components/notice';
@@ -9,8 +8,6 @@ import { StepScreen } from '@/components/step-screen';
 import { useT } from '@/i18n';
 import { affecting, toNewCheckin, useCheckinDraft } from '@/lib/checkin-draft';
 import { useCheckinSteps, useSubmitCheckin } from '@/lib/checkin-steps';
-import { DOMAIN_ART, STIMULUS_ART } from '@/lib/art';
-import { INNER_DOMAIN } from '@/lib/checkin-route';
 import { useCatalog } from '@/lib/queries';
 import type { Response } from '@/lib/types';
 
@@ -51,40 +48,36 @@ export default function DomainStep() {
     for (const s of stimuli) {
       answers[s.id] = choice.includes(UNSURE) ? 'unsure' : choice.includes(s.id) ? 'yes' : 'no';
     }
-    // Lo cognitivo no pasa por la pregunta de cómo te sientes, que es donde se fija el único lugar.
-    const spaceId = draft.spaceId ?? steps.onlySpaceId ?? null;
-    update({ answers, spaceId });
+    update({ answers });
     if (steps.goAfter(domainId)) return;
 
     // Último dominio: si hay varias cosas, la persona elige una; si no, se registra ya.
-    const merged = { ...draft, answers, spaceId };
+    const merged = { ...draft, answers };
     const marked = affecting(merged);
     if (marked.length > 1) router.push('/checkin/focus');
     else submit.mutate(toNewCheckin(merged, marked[0] ?? null));
   }
 
   const options = [
-    ...stimuli.map((s) => ({ ...s, art: STIMULUS_ART[s.id] })),
-    ...(domainId === INNER_DOMAIN ? [] : [{ id: NONE, label: t.checkin.noneOfThese }]),
-    { id: UNSURE, label: t.checkin.notSure, art: domainId === INNER_DOMAIN ? ('unsure' as const) : undefined },
+    ...stimuli,
+    { id: NONE, label: t.checkin.noneOfThese },
+    { id: UNSURE, label: t.checkin.notSure },
   ];
 
   return (
     <StepScreen
       step={steps.progress(domainId)}
-      art={DOMAIN_ART[domainId]}
       title={domain?.question ?? ''}
       hint={t.checkin.domainHint}
       footer={
         <Button
           title={t.common.next}
-          disabled={choice.length === 0 || !domain}
+          disabled={choice.length === 0}
           loading={submit.isPending}
           onPress={next}
         />
       }>
-      <QueryFeedback query={catalog} />
-      <ChoiceList disabled={submit.isPending} multiple options={options} selected={choice} onSelect={toggle} />
+      <ChoiceList multiple options={options} selected={choice} onSelect={toggle} />
       {submit.isError ? <Notice text={t.common.somethingFailed} action={t.common.retry} onAction={next} /> : null}
     </StepScreen>
   );

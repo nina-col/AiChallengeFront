@@ -69,7 +69,7 @@ export function useReducedMotion() {
     return () => subscription.remove();
   }, []);
 
-  return system || settings.motion === 'reduced' || settings.focusMode;
+  return system || settings.motion === 'reduced';
 }
 
 /**

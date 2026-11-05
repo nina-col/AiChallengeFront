@@ -1,4 +1,3 @@
-import { useTypography } from '@/hooks/use-typography';
 import { Stack } from 'expo-router';
 
 import { CloseButton } from '@/components/close-button';
@@ -20,7 +19,6 @@ export default function CheckinLayout() {
 function CheckinStack() {
   const t = useT();
   const theme = useTheme();
-  const headline = useTypography('headline');
   const reducedMotion = useReducedMotion();
   const { draft } = useCheckinDraft();
 
@@ -40,7 +38,7 @@ function CheckinStack() {
         headerShadowVisible: false,
         headerStyle: { backgroundColor: theme.background },
         headerTintColor: theme.primary,
-        headerTitleStyle: { color: theme.text, fontFamily: headline.fontFamily, fontSize: headline.fontSize },
+        headerTitleStyle: { color: theme.text },
         headerBackButtonDisplayMode: 'minimal',
         animation: reducedMotion ? 'fade' : 'default',
         headerRight: () => <CloseButton onClose={closeCheckin} />,
